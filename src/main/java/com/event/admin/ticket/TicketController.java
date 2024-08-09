@@ -148,15 +148,12 @@ public class TicketController {
                 }
 
                 String query = "SELECT * FROM organizers WHERE company_name = ?";
-                Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codertify GmbH"}, new RowMapper<Organizer>() {
-                    @Override
-                    public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Organizer organizer = new Organizer();
-                        organizer.setId(rs.getLong("id"));
-                        organizer.setCompanyName(rs.getString("company_name"));
-                        organizer.setContactName(rs.getString("contact_name"));
-                        return organizer;
-                    }
+                Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codertify GmbH"}, (rs, _) -> {
+                    Organizer organizer1 = new Organizer();
+                    organizer1.setId(rs.getLong("id"));
+                    organizer1.setCompanyName(rs.getString("company_name"));
+                    organizer1.setContactName(rs.getString("contact_name"));
+                    return organizer1;
                 });
 
                 if (organizer != null) {
