@@ -1,5 +1,7 @@
 package com.university.dataaccess.entity;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 

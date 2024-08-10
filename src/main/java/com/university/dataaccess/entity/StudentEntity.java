@@ -1,6 +1,5 @@
 package com.university.dataaccess.entity;
 
-import com.university.dataaccess.entity.EnrollmentEntity;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;

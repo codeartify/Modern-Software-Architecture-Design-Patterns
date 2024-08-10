@@ -1,5 +1,7 @@
 package com.university.dataaccess.entity;
 
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "enrollments")
 public class EnrollmentEntity {
