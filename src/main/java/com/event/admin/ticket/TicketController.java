@@ -39,6 +39,7 @@ public class TicketController {
             log.info("Event created: {}", event.getName());
             return ResponseEntity.ok(event);
         } catch (Exception e) {
+            log.error("Error creating event: {}", e.toString());
             return ResponseEntity.badRequest().build();
         }
     }
