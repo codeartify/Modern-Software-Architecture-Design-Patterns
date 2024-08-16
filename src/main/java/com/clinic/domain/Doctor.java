@@ -14,7 +14,7 @@ public class Doctor {
         this.name = name;
         this.specialization = specialization;
         this.language = language;
-        this.gender=gender;
+        this.gender = gender;
     }
 
     public String getId() {

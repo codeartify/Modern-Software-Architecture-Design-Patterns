@@ -7,11 +7,12 @@ public class DoctorPreference {
     private final String specialization;
     private final Language language;
 
-    public DoctorPreference(Gender gender, String specialization, Language language){
-        this.gender=gender;
-        this.specialization=specialization;
-        this.language=language;
+    public DoctorPreference(Gender gender, String specialization, Language language) {
+        this.gender = gender;
+        this.specialization = specialization;
+        this.language = language;
     }
+
     public Gender getGender() {
         return gender;
     }

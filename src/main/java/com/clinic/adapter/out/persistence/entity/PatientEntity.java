@@ -1,7 +1,5 @@
 package com.clinic.adapter.out.persistence.entity;
 
-import com.clinic.domain.Urgency;
-
 import java.time.LocalDate;
 
 public class PatientEntity {

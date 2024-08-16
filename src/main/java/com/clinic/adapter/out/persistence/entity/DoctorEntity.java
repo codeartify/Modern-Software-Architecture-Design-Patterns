@@ -41,7 +41,7 @@ public class DoctorEntity {
     }
 
     public void setGender(String gender) {
-        this.gender=gender;
+        this.gender = gender;
     }
 
     public String getId() {
