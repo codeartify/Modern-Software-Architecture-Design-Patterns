@@ -34,7 +34,7 @@ public class TicketController {
     @Transactional
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         try {
-            String query = "INSERT INTO events (name) VALUES (?)";
+            String query = "INSERT INTO event (name) VALUES (?)";
             jdbcTemplate.update(query, event.getName());
             log.info("Event created: {}", event.getName());
             return ResponseEntity.ok(event);
@@ -55,7 +55,7 @@ public class TicketController {
                 throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
             }
 
-            String query = "INSERT INTO tickets (price, type, qrcode, event_id) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO ticket (price, type, qrcode, event_id) VALUES (?, ?, ?, ?)";
             for (Ticket ticket : tickets) {
                 log.info("Ticket {}", ticket);
                 if (ticket.getPrice() < 0) {
@@ -93,10 +93,9 @@ public class TicketController {
                 totalAmount += ticketPriceWithVAT;
 
                 if (paymentRequest.getDiscountCode() != null && !paymentRequest.getDiscountCode().isEmpty()) {
-                    String query = "SELECT * FROM discount_codes WHERE code = ?";
+                    String query = "SELECT * FROM discount_code WHERE code = ?";
                     DiscountCode discount = jdbcTemplate.queryForObject(query, new Object[]{paymentRequest.getDiscountCode()}, (rs, _) -> {
                         DiscountCode discount1 = new DiscountCode();
-                        discount1.setId(rs.getLong("id"));
                         discount1.setCode(rs.getString("code"));
                         discount1.setDiscountPercentage(rs.getDouble("discount_percentage"));
                         discount1.setApplicableTicketType(rs.getString("applicable_ticket_type"));
@@ -143,7 +142,7 @@ public class TicketController {
                     String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
                     ticket.setQrCode(qrCodeUrl);
 
-                    String query = "UPDATE tickets SET qr_code = ? WHERE id = ?";
+                    String query = "UPDATE ticket SET qr_code = ? WHERE id = ?";
                     jdbcTemplate.update(query, qrCodeUrl, ticket.getId());
 
                     // Send notification to the buyer
@@ -154,11 +153,11 @@ public class TicketController {
                             "Event: " + ticket.getEvent().getName() + "\n" +
                             "Ticket Type: " + ticket.getType() + "\n" +
                             "QR Code: " + qrCodeUrl);
-                    String query1 = "INSERT INTO notifications (recipient, subject, message) VALUES (?, ?, ?)";
+                    String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
                     jdbcTemplate.update(query1, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
                 }
 
-                String query = "SELECT * FROM organizers WHERE company_name = ?";
+                String query = "SELECT * FROM organizer WHERE company_name = ?";
                 Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codeartify GmbH"}, (rs, _) -> {
                     Organizer organizer1 = new Organizer();
                     organizer1.setId(rs.getLong("id"));
@@ -172,7 +171,7 @@ public class TicketController {
                     organizerNotification.setRecipient(organizer.getContactName());
                     organizerNotification.setSubject("New Ticket Sale");
                     organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
-                    String query1 = "INSERT INTO notifications (recipient, subject, message) VALUES (?, ?, ?)";
+                    String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
                     jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
                 }
             } else if ("bill".equalsIgnoreCase(paymentRequest.getPaymentType())) {
@@ -206,11 +205,11 @@ public class TicketController {
                 buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" +
                         "Amount: " + bill.getAmount() + "\n" +
                         "Description: " + bill.getDescription());
-                String query = "INSERT INTO notifications (recipient, subject, message) VALUES (?, ?, ?)";
+                String query = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
                 jdbcTemplate.update(query, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
 
                 // Notify the organizer
-                String query2 = "SELECT * FROM organizers WHERE company_name = ?";
+                String query2 = "SELECT * FROM organizer WHERE company_name = ?";
                 Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{"Codeartify GmbH"}, new RowMapper<Organizer>() {
                     @Override
                     public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -227,7 +226,7 @@ public class TicketController {
                     organizerNotification.setRecipient(organizer.getContactName());
                     organizerNotification.setSubject("New Ticket Sale");
                     organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
-                    String query1 = "INSERT INTO notifications (recipient, subject, message) VALUES (?, ?, ?)";
+                    String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
                     jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
                 }
 
@@ -237,13 +236,15 @@ public class TicketController {
                 throw new IllegalArgumentException("Invalid payment type.");
             }
 
-            String query = "INSERT INTO payments (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO payment (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
             jdbcTemplate.update(query, payment.getAmount(), payment.getPaymentMethod(), payment.getDescription(), payment.isSuccessful());
 
             return ResponseEntity.ok(payment);
         } catch (IllegalArgumentException e) {
+            log.error("400 Error processing payment: {}", e.toString());
             return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
+            log.error("500 Error processing payment: {}", e.toString());
             return ResponseEntity.status(500).body(null);
         }
     }
