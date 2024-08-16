@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.ResultSet;
@@ -16,7 +17,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/api")
 public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
@@ -26,7 +27,8 @@ public class TicketController {
     }
 
     // Endpoint to create a new event
-    @PostMapping("/event")
+    @PostMapping("/events")
+    @Transactional
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         try {
             String query = "INSERT INTO events (name) VALUES (?)";
@@ -39,7 +41,8 @@ public class TicketController {
     }
 
     // Endpoint to create tickets for an event
-    @PostMapping("/create")
+    @PostMapping("/tickets")
+    @Transactional
     public ResponseEntity<List<Ticket>> createTickets(@RequestBody List<Ticket> tickets) {
         try {
             if (tickets.size() > 10) {
@@ -53,7 +56,8 @@ public class TicketController {
                 }
                 jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getEvent().getId());
             }
-
+            log.info("Tickets created: {}", tickets.size());
+            tickets.forEach(ticket -> log.info("Ticket type: {}, price: {}", ticket.getType(), ticket.getPrice()));
             return ResponseEntity.ok(tickets);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
@@ -63,7 +67,8 @@ public class TicketController {
     }
 
     // Endpoint to process a payment
-    @PostMapping("/payment")
+    @PostMapping("/tickets/payment")
+    @Transactional
     public ResponseEntity<Payment> processPayment(@RequestParam String paymentType,
                                                   @RequestBody List<Ticket> tickets,
                                                   @RequestParam String paymentMethod,
@@ -151,7 +156,7 @@ public class TicketController {
                 }
 
                 String query = "SELECT * FROM organizers WHERE company_name = ?";
-                Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codertify GmbH"}, (rs, _) -> {
+                Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codeartify GmbH"}, (rs, _) -> {
                     Organizer organizer1 = new Organizer();
                     organizer1.setId(rs.getLong("id"));
                     organizer1.setCompanyName(rs.getString("company_name"));
@@ -187,7 +192,7 @@ public class TicketController {
                 bill.setAmount(totalAmountWithFee);
                 bill.setIban(iban);
                 bill.setDescription(billDescription);
-                bill.setOrganizerCompanyName("Codertify GmbH");
+                bill.setOrganizerCompanyName("Codeartify GmbH");
                 bill.setCreationDate(LocalDate.now());
                 bill.setPaid(false);
 
@@ -203,7 +208,7 @@ public class TicketController {
 
                 // Notify the organizer
                 String query2 = "SELECT * FROM organizers WHERE company_name = ?";
-                Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{"Codertify GmbH"}, new RowMapper<Organizer>() {
+                Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{"Codeartify GmbH"}, new RowMapper<Organizer>() {
                     @Override
                     public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
                         Organizer organizer = new Organizer();
