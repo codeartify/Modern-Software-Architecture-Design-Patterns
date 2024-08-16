@@ -70,15 +70,7 @@ public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, 
         entity.setName(doctor.getName());
         entity.setSpecialization(doctor.getSpecialization());
         entity.setLanguage(doctor.getLanguage().name());
-        entity.setGender(mapGender(doctor));
+        entity.setGender(doctor.getGender().name());
         return entity;
-    }
-
-    private static String mapGender(Doctor doctor) {
-        return switch (doctor.getGender()) {
-            case F -> "Female";
-            case M -> "Male";
-            case Other -> "Other";
-        };
     }
 }
