@@ -2,15 +2,15 @@ package com.clinic.application;
 
 import com.clinic.domain.Patient;
 import com.clinic.port.in.ForRegisteringPatient;
-import com.clinic.port.out.PatientRepository;
+import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RegisterPatientService implements ForRegisteringPatient {
-    private final PatientRepository patientRepository;
+    private final ForStoringPatients forStoringPatients;
 
-    public RegisterPatientService(PatientRepository patientRepository) {
-        this.patientRepository = patientRepository;
+    public RegisterPatientService(ForStoringPatients forStoringPatients) {
+        this.forStoringPatients = forStoringPatients;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class RegisterPatientService implements ForRegisteringPatient {
             throw new IllegalArgumentException("Patient must agree to privacy terms.");
         }
 
-        patientRepository.save(patient);
+        forStoringPatients.store(patient);
     }
 
     private void validatePatientDetails(Patient patient) {

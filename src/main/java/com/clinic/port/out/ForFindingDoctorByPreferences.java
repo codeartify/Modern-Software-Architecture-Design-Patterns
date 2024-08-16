@@ -3,8 +3,7 @@ package com.clinic.port.out;
 import com.clinic.domain.Doctor;
 import com.clinic.domain.DoctorPreference;
 
-public interface DoctorRepository {
-    Doctor findFirstAvailableDoctor();
-
+public interface ForFindingDoctorByPreferences {
     Doctor findDoctorByPreferences(DoctorPreference doctorPreference);
+
 }

@@ -5,14 +5,15 @@ import com.clinic.adapter.out.persistence.entity.Gender;
 import com.clinic.domain.Doctor;
 import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
-import com.clinic.port.out.DoctorRepository;
+import com.clinic.port.out.ForFindingDoctorByPreferences;
+import com.clinic.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class InMemoryDoctorRepository implements DoctorRepository {
+public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, ForFindingFirstAvailableDoctor {
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
     @Override

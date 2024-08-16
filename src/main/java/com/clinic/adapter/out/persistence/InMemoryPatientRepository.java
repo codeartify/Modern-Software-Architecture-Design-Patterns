@@ -7,7 +7,8 @@ import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
 import com.clinic.domain.Patient;
 import com.clinic.domain.Urgency;
-import com.clinic.port.out.PatientRepository;
+import com.clinic.port.out.ForFindingPatients;
+import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -16,13 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class InMemoryPatientRepository implements PatientRepository {
+public class InMemoryPatientRepository implements ForStoringPatients, ForFindingPatients {
     private final Map<String, PatientEntity> patientStore = new HashMap<>();
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
 
     @Override
-    public void save(Patient patient) {
+    public void store(Patient patient) {
         DoctorEntity preferredDoctor = findPreferredDoctor(patient);
         PatientEntity entity = mapToEntity(patient, preferredDoctor);
         patientStore.put(entity.getId(), entity);

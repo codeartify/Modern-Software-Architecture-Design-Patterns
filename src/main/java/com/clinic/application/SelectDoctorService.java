@@ -4,15 +4,19 @@ import com.clinic.domain.Doctor;
 import com.clinic.domain.Patient;
 import com.clinic.domain.Urgency;
 import com.clinic.port.in.ForSelectingDoctor;
-import com.clinic.port.out.DoctorRepository;
+import com.clinic.port.out.ForFindingDoctorByPreferences;
+import com.clinic.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SelectDoctorService implements ForSelectingDoctor {
-    private final DoctorRepository doctorRepository;
+    private final ForFindingDoctorByPreferences forFindingDoctorByPreferences;
+    private final ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor;
 
-    public SelectDoctorService(DoctorRepository doctorRepository) {
-        this.doctorRepository = doctorRepository;
+    public SelectDoctorService(ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor,
+                               ForFindingDoctorByPreferences forFindingDoctorByPreferences) {
+        this.forFindingFirstAvailableDoctor = forFindingFirstAvailableDoctor;
+        this.forFindingDoctorByPreferences = forFindingDoctorByPreferences;
     }
 
     @Override
@@ -30,9 +34,9 @@ public class SelectDoctorService implements ForSelectingDoctor {
 
     private Doctor findDoctorByPreferences(Patient patient) {
         if (patient.getUrgency() == Urgency.HIGH) {
-            return doctorRepository.findFirstAvailableDoctor();
+            return forFindingFirstAvailableDoctor.findFirstAvailableDoctor();
         }
 
-        return doctorRepository.findDoctorByPreferences(patient.getDoctorPreference());
+        return forFindingDoctorByPreferences.findDoctorByPreferences(patient.getDoctorPreference());
     }
 }
