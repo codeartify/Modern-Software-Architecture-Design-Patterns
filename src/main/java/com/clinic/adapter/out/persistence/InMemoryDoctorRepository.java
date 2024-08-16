@@ -3,6 +3,7 @@ package com.clinic.adapter.out.persistence;
 import com.clinic.adapter.out.persistence.entity.DoctorEntity;
 import com.clinic.adapter.out.persistence.entity.Gender;
 import com.clinic.domain.Doctor;
+import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
 import com.clinic.port.out.DoctorRepository;
 import org.springframework.stereotype.Repository;
@@ -12,12 +13,12 @@ import java.util.List;
 
 @Repository
 public class InMemoryDoctorRepository implements DoctorRepository {
-    private final List<DoctorEntity> doctors = new ArrayList<>();
+    private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
     @Override
-    public Doctor findDoctorByPreferences(String gender, String specialization, String language) {
-        return doctors.stream()
-                .filter(doctor -> isPreferredDoctor(gender, specialization, language, doctor))
+    public Doctor findDoctorByPreferences(DoctorPreference doctorPreference) {
+        return doctorStore.stream()
+                .filter(doctor -> isPreferredDoctor(doctorPreference, doctor))
                 .map(this::mapToDomain)
                 .findFirst()
                 .orElse(null);
@@ -25,12 +26,12 @@ public class InMemoryDoctorRepository implements DoctorRepository {
 
     @Override
     public Doctor findFirstAvailableDoctor() {
-        return doctors
+        return doctorStore
                 .stream()
                 .filter(DoctorEntity::isAvailable)
                 .map(this::mapToDomain)
                 .findFirst()
-                .orElse(mapToDomain(doctors.getFirst()));
+                .orElse(mapToDomain(doctorStore.getFirst()));
     }
 
     private Doctor mapToDomain(DoctorEntity entity) {
@@ -43,14 +44,14 @@ public class InMemoryDoctorRepository implements DoctorRepository {
         );
     }
 
-    private static boolean isPreferredDoctor(String gender, String specialization, String language, DoctorEntity doctor) {
-        return doctor.getGender().equals(gender) &&
-                doctor.getSpecialization().equals(specialization) &&
-                doctor.getLanguage().equals(language);
+    private static boolean isPreferredDoctor(DoctorPreference doctorPreference, DoctorEntity doctor) {
+        return doctor.getGender().equals(doctorPreference.getGender().name()) &&
+                doctor.getSpecialization().equals(doctorPreference.getSpecialization()) &&
+                doctor.getLanguage().equals(doctorPreference.getLanguage().name());
     }
 
     public void addDoctor(Doctor doctor) {
-        doctors.add(mapToEntity(doctor));
+        doctorStore.add(mapToEntity(doctor));
     }
 
     private DoctorEntity mapToEntity(Doctor doctor) {

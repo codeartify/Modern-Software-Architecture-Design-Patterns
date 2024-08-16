@@ -1,6 +1,5 @@
 package com.clinic.domain;
 
-import java.net.ProtocolFamily;
 import java.time.LocalDate;
 
 public class Patient {
@@ -8,16 +7,16 @@ public class Patient {
     private final String name;
     private final LocalDate birthDate;
     private final String privacyAgreement;
-    private final String preferredDoctorId;
     private final Urgency urgency;
+    private final DoctorPreference doctorPreference;
 
-    public Patient(String id, String name, LocalDate birthDate, String privacyAgreement, String preferredDoctorId, Urgency urgency) {
+    public Patient(String id, String name, LocalDate birthDate, String privacyAgreement, Urgency urgency, DoctorPreference doctorPreference) {
         this.id = id;
         this.name = name;
         this.birthDate = birthDate;
         this.privacyAgreement = privacyAgreement;
-        this.preferredDoctorId = preferredDoctorId;
         this.urgency = urgency;
+        this.doctorPreference = doctorPreference;
     }
 
     public String getId() {
@@ -36,12 +35,11 @@ public class Patient {
         return privacyAgreement;
     }
 
-    public String getPreferredDoctorId() {
-        return preferredDoctorId;
-    }
-
     public Urgency getUrgency() {
         return urgency;
     }
 
+    public DoctorPreference getDoctorPreference() {
+        return doctorPreference;
+    }
 }

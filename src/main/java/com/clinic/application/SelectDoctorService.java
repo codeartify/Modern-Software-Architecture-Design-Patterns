@@ -17,7 +17,7 @@ public class SelectDoctorService implements ForSelectingDoctor {
 
     @Override
     public Doctor selectDoctorForPatient(Patient patient) {
-        if (patient.getPreferredDoctorId() == null || patient.getUrgency() == null) {
+        if (patient.getDoctorPreference() == null || patient.getUrgency() == null) {
             throw new IllegalArgumentException("Patient preferences or urgency are missing.");
         }
 
@@ -29,14 +29,10 @@ public class SelectDoctorService implements ForSelectingDoctor {
     }
 
     private Doctor findDoctorByPreferences(Patient patient) {
-        String gender = "Gender";
-        String specialization = "Specialization";
-        String language = "Language";
-
         if (patient.getUrgency() == Urgency.HIGH) {
             return doctorRepository.findFirstAvailableDoctor();
         }
 
-        return doctorRepository.findDoctorByPreferences(gender, specialization, language);
+        return doctorRepository.findDoctorByPreferences(patient.getDoctorPreference());
     }
 }

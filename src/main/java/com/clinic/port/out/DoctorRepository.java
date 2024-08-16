@@ -1,9 +1,10 @@
 package com.clinic.port.out;
 
 import com.clinic.domain.Doctor;
+import com.clinic.domain.DoctorPreference;
 
 public interface DoctorRepository {
-    Doctor findDoctorByPreferences(String gender, String specialization, String language);
-
     Doctor findFirstAvailableDoctor();
+
+    Doctor findDoctorByPreferences(DoctorPreference doctorPreference);
 }
