@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,7 +55,6 @@ public class TicketController {
                 throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
             }
 
-
             String query = "INSERT INTO tickets (price, type, qrcode, event_id) VALUES (?, ?, ?, ?)";
             for (Ticket ticket : tickets) {
                 log.info("Ticket {}", ticket);
@@ -76,29 +78,23 @@ public class TicketController {
     // Endpoint to process a payment
     @PostMapping("/tickets/payment")
     @Transactional
-    public ResponseEntity<Payment> processPayment(@RequestParam String paymentType,
-                                                  @RequestBody List<Ticket> tickets,
-                                                  @RequestParam String paymentMethod,
-                                                  @RequestParam(required = false) String discountCode,
-                                                  @RequestParam(required = false) String buyerCompanyName,
-                                                  @RequestParam(required = false) String buyerName,
-                                                  @RequestParam(required = false) String iban,
-                                                  @RequestParam(required = false) String billDescription) {
+    public ResponseEntity<Payment> processPayment(@RequestBody PaymentRequest paymentRequest) {
+
         try {
             double totalAmount = 0;
             double discountTotal = 0;
 
-            if (tickets.size() > 10) {
+            if (paymentRequest.getTickets().size() > 10) {
                 throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
             }
 
-            for (Ticket ticket : tickets) {
+            for (Ticket ticket : paymentRequest.getTickets()) {
                 double ticketPriceWithVAT = ticket.getPrice() * 1.20;
                 totalAmount += ticketPriceWithVAT;
 
-                if (discountCode != null && !discountCode.isEmpty()) {
+                if (paymentRequest.getDiscountCode() != null && !paymentRequest.getDiscountCode().isEmpty()) {
                     String query = "SELECT * FROM discount_codes WHERE code = ?";
-                    DiscountCode discount = jdbcTemplate.queryForObject(query, new Object[]{discountCode}, (rs, _) -> {
+                    DiscountCode discount = jdbcTemplate.queryForObject(query, new Object[]{paymentRequest.getDiscountCode()}, (rs, _) -> {
                         DiscountCode discount1 = new DiscountCode();
                         discount1.setId(rs.getLong("id"));
                         discount1.setCode(rs.getString("code"));
@@ -112,7 +108,7 @@ public class TicketController {
                 }
             }
 
-            int numberOfTickets = tickets.size();
+            int numberOfTickets = paymentRequest.getTickets().size();
             double groupDiscount;
             if (numberOfTickets >= 11) {
                 groupDiscount = 0.30;
@@ -136,14 +132,14 @@ public class TicketController {
 
             Payment payment = new Payment();
             payment.setAmount(totalAmount);
-            payment.setPaymentMethod(paymentMethod);
+            payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
-            if ("credit_card".equalsIgnoreCase(paymentType)) {
+            if ("credit_card".equalsIgnoreCase(paymentRequest.getPaymentType())) {
                 SecurityUtil.encryptPaymentInfo(payment.getPaymentMethod());
                 payment.setDescription("Payment for tickets via credit card");
                 payment.setSuccessful(true);
 
-                for (Ticket ticket : tickets) {
+                for (Ticket ticket : paymentRequest.getTickets()) {
                     String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
                     ticket.setQrCode(qrCodeUrl);
 
@@ -152,7 +148,7 @@ public class TicketController {
 
                     // Send notification to the buyer
                     Notification buyerNotification = new Notification();
-                    buyerNotification.setRecipient(buyerName);
+                    buyerNotification.setRecipient(paymentRequest.getBuyerName());
                     buyerNotification.setSubject("Payment Successful");
                     buyerNotification.setMessage("Your payment was successful. Here is your ticket:\n" +
                             "Event: " + ticket.getEvent().getName() + "\n" +
@@ -179,14 +175,14 @@ public class TicketController {
                     String query1 = "INSERT INTO notifications (recipient, subject, message) VALUES (?, ?, ?)";
                     jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
                 }
-            } else if ("bill".equalsIgnoreCase(paymentType)) {
-                if (buyerCompanyName == null || buyerCompanyName.isEmpty()) {
+            } else if ("bill".equalsIgnoreCase(paymentRequest.getPaymentType())) {
+                if (paymentRequest.getBuyerCompanyName() == null || paymentRequest.getBuyerCompanyName().isEmpty()) {
                     throw new IllegalArgumentException("Buyer company name must be provided.");
                 }
-                if (buyerName == null || buyerName.isEmpty()) {
+                if (paymentRequest.getBuyerName() == null || paymentRequest.getBuyerName().isEmpty()) {
                     throw new IllegalArgumentException("Buyer name must be provided.");
                 }
-                if (iban == null || iban.isEmpty()) {
+                if (paymentRequest.getIban() == null || paymentRequest.getIban().isEmpty()) {
                     throw new IllegalArgumentException("IBAN must be provided.");
                 }
 
@@ -194,18 +190,18 @@ public class TicketController {
                 double totalAmountWithFee = totalAmountWithVAT * 1.03;
 
                 Bill bill = new Bill();
-                bill.setBuyerCompanyName(buyerCompanyName);
-                bill.setBuyerName(buyerName);
+                bill.setBuyerCompanyName(paymentRequest.getBuyerCompanyName());
+                bill.setBuyerName(paymentRequest.getBuyerName());
                 bill.setAmount(totalAmountWithFee);
-                bill.setIban(iban);
-                bill.setDescription(billDescription);
+                bill.setIban(paymentRequest.getIban());
+                bill.setDescription(paymentRequest.getBillDescription());
                 bill.setOrganizerCompanyName("Codeartify GmbH");
                 bill.setCreationDate(LocalDate.now());
                 bill.setPaid(false);
 
                 // Send notification to the buyer
                 Notification buyerNotification = new Notification();
-                buyerNotification.setRecipient(buyerName);
+                buyerNotification.setRecipient(paymentRequest.getBuyerName());
                 buyerNotification.setSubject("New Bill Issued");
                 buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" +
                         "Amount: " + bill.getAmount() + "\n" +
