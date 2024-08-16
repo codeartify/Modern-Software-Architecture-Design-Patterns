@@ -9,11 +9,11 @@ import com.clinic.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SelectDoctorUseCase implements ForSelectingDoctor {
+public class SelectDoctorService implements ForSelectingDoctor {
     private final ForFindingDoctorByPreferences forFindingDoctorByPreferences;
     private final ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor;
 
-    public SelectDoctorUseCase(ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor,
+    public SelectDoctorService(ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor,
                                ForFindingDoctorByPreferences forFindingDoctorByPreferences) {
         this.forFindingFirstAvailableDoctor = forFindingFirstAvailableDoctor;
         this.forFindingDoctorByPreferences = forFindingDoctorByPreferences;
