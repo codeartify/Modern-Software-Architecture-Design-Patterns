@@ -7,7 +7,7 @@ import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
 import com.clinic.domain.Patient;
 import com.clinic.domain.Urgency;
-import com.clinic.port.out.ForFindingPatients;
+import com.clinic.port.in.ForFindingPatients;
 import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Repository;
 

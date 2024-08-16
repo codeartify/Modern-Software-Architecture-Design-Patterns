@@ -6,10 +6,10 @@ import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RegisterPatientService implements ForRegisteringPatient {
+public class RegisterPatientUseCase implements ForRegisteringPatient {
     private final ForStoringPatients forStoringPatients;
 
-    public RegisterPatientService(ForStoringPatients forStoringPatients) {
+    public RegisterPatientUseCase(ForStoringPatients forStoringPatients) {
         this.forStoringPatients = forStoringPatients;
     }
 

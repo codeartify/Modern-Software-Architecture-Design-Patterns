@@ -1,4 +1,4 @@
-package com.clinic.port.out;
+package com.clinic.port.in;
 
 import com.clinic.domain.Patient;
 
