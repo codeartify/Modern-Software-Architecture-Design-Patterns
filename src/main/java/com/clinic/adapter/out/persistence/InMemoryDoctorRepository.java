@@ -17,12 +17,12 @@ public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, 
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
     public InMemoryDoctorRepository() {
-        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English"));
-        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish"));
-        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English"));
-        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean"));
-        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi"));
-        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi"));
+        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English", "M", true));
+        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish", "M", true));
+        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English", "F", true));
+        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean", "M", false));
+        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi", "M", true));
+        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi", "F", true));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, 
                 entity.getId(),
                 entity.getName(),
                 entity.getSpecialization(),
-                Language.valueOf(entity.getLanguage()),
+                Language.valueOf(entity.getLanguage().toUpperCase()),
                 Gender.valueOf(entity.getGender())
         );
     }

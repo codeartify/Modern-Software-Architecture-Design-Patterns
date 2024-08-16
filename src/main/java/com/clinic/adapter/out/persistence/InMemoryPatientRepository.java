@@ -30,12 +30,12 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
         patientStore.put("5", new PatientEntity("5", "Eve", LocalDate.of(2010, 5, 5), "true", "5", "MEDIUM"));
         patientStore.put("6", new PatientEntity("6", "Frank", LocalDate.of(2015, 6, 6), "true", "6", "LOW"));
 
-        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English"));
-        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish"));
-        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English"));
-        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean"));
-        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi"));
-        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi"));
+        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English", "M", true));
+        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish", "M", true));
+        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English", "F", true));
+        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean", "M", false));
+        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi", "M", true));
+        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi", "F", true));
     }
 
     @Override
@@ -82,11 +82,10 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
     private Patient mapToDomain(PatientEntity entity, DoctorPreference doctorPreference) {
         return new Patient(
                 entity.getId(),
-                entity.getname(),
+                entity.getName(),
                 entity.getBirthDate(),
                 entity.getPrivacyAgreement(),
-                Urgency.valueOf(entity.getUrgency()
-                ),
+                Urgency.valueOf(entity.getUrgency().toUpperCase()),
                 doctorPreference
         );
     }
@@ -96,7 +95,7 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
                 .stream()
                 .filter(doctor -> doctor.getId().equals(entity.getPreferredDoctorId()))
                 .findFirst()
-                .map(doctor -> new DoctorPreference(Gender.valueOf(doctor.getGender()), doctor.getSpecialization(), Language.valueOf(doctor.getLanguage())))
+                .map(doctor -> new DoctorPreference(Gender.valueOf(doctor.getGender()), doctor.getSpecialization(), Language.valueOf(doctor.getLanguage().toUpperCase())))
                 .orElseThrow();
     }
 }

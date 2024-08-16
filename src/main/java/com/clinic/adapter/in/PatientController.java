@@ -1,14 +1,16 @@
 package com.clinic.adapter.in;
 
-import com.clinic.domain.Patient;
 import com.clinic.domain.Doctor;
+import com.clinic.domain.Patient;
 import com.clinic.port.in.ForFindingPatients;
 import com.clinic.port.in.ForRegisteringPatient;
 import com.clinic.port.in.ForSelectingDoctor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/patients")
 public class PatientController {
@@ -42,8 +44,10 @@ public class PatientController {
             Doctor doctor = selectDoctorUseCase.selectDoctorForPatient(patient);
             return ResponseEntity.ok(doctor);
         } catch (IllegalArgumentException e) {
+            log.error("Error selecting doctor for patient", e);
             return ResponseEntity.badRequest().body(null);
         } catch (RuntimeException e) {
+            log.error("Error selecting doctor for patient", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
