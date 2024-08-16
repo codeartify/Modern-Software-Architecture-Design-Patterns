@@ -10,6 +10,17 @@ public class PatientEntity {
     private String preferredDoctorId;
     private String urgency; // Use string to represent urgency
 
+    public PatientEntity(String id, String name, LocalDate birthDate, String privacyAgreement, String preferredDoctorId, String urgency) {
+        this.id = id;
+        this.name = name;
+        this.birthDate = birthDate;
+        this.privacyAgreement = privacyAgreement;
+        this.preferredDoctorId = preferredDoctorId;
+        this.urgency = urgency;
+    }
+
+    public PatientEntity(){}
+
     public String getId() {
         return id;
     }

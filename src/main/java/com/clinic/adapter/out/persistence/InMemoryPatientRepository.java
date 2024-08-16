@@ -11,6 +11,7 @@ import com.clinic.port.in.ForFindingPatients;
 import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,21 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
     private final Map<String, PatientEntity> patientStore = new HashMap<>();
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
+    public InMemoryPatientRepository() {
+        patientStore.put("1", new PatientEntity("1", "Alice", LocalDate.of(1990, 1, 1), "true", "1", "HIGH"));
+        patientStore.put("2", new PatientEntity("2", "Bob", LocalDate.of(1995, 2, 2), "true", "2", "MEDIUM"));
+        patientStore.put("3", new PatientEntity("3", "Charlie", LocalDate.of(2000, 3, 3), "true", "3", "LOW"));
+        patientStore.put("4", new PatientEntity("4", "David", LocalDate.of(2005, 4, 4), "true", "4", "HIGH"));
+        patientStore.put("5", new PatientEntity("5", "Eve", LocalDate.of(2010, 5, 5), "true", "5", "MEDIUM"));
+        patientStore.put("6", new PatientEntity("6", "Frank", LocalDate.of(2015, 6, 6), "true", "6", "LOW"));
+
+        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English"));
+        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish"));
+        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English"));
+        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean"));
+        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi"));
+        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi"));
+    }
 
     @Override
     public void store(Patient patient) {

@@ -16,6 +16,15 @@ import java.util.List;
 public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, ForFindingFirstAvailableDoctor {
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
+    public InMemoryDoctorRepository() {
+        doctorStore.add(new DoctorEntity("1", "Dr. Smith", "Cardiology", "English"));
+        doctorStore.add(new DoctorEntity("2", "Dr. Johnson", "Dermatology", "Spanish"));
+        doctorStore.add(new DoctorEntity("3", "Dr. Lee", "Pediatrics", "English"));
+        doctorStore.add(new DoctorEntity("4", "Dr. Kim", "Cardiology", "Korean"));
+        doctorStore.add(new DoctorEntity("5", "Dr. Patel", "Dermatology", "Hindi"));
+        doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi"));
+    }
+
     @Override
     public Doctor findDoctorByPreferences(DoctorPreference doctorPreference) {
         return doctorStore.stream()

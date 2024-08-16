@@ -8,6 +8,16 @@ public class DoctorEntity {
     private String gender;
     private boolean isAvailable;
 
+    public DoctorEntity(String id, String name, String specialization, String language) {
+        this.id = id;
+        this.name = name;
+        this.specialization = specialization;
+        this.language = language;
+        this.isAvailable = true;
+    }
+
+    public DoctorEntity(){}
+
     public String getGender() {
         return gender;
     }
