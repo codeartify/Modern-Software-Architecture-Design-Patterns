@@ -3,6 +3,7 @@ package com.library.presentation;
 import com.library.application.LibraryServiceImpl;
 import com.library.domain.Book;
 import com.library.domain.Member;
+import com.library.infrastructure.jpa.BookRepositoryImpl;
 import com.library.infrastructure.jpa.MemberRepositoryImpl;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class LibraryController {
     private final LibraryServiceImpl libraryService;
 
     public LibraryController() {
-        this.libraryService = new LibraryServiceImpl(new MemberRepositoryImpl());
+        this.libraryService = new LibraryServiceImpl(new MemberRepositoryImpl(), new BookRepositoryImpl());
     }
 
     @PostMapping("/members")
