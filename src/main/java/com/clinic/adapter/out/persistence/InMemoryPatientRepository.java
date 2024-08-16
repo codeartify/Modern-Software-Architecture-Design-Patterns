@@ -75,8 +75,8 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
 
     private static boolean isPreferredDoctor(Patient patient, DoctorEntity doctor) {
         return doctor.getSpecialization().equals(patient.getDoctorPreference().getSpecialization()) &&
-                doctor.getLanguage().equals(patient.getDoctorPreference().getLanguage().name())
-                && doctor.getGender().equals(patient.getDoctorPreference().getGender().name());
+                doctor.getLanguage().equalsIgnoreCase(patient.getDoctorPreference().getLanguage().name())
+                && doctor.getGender().equalsIgnoreCase(patient.getDoctorPreference().getGender().name());
     }
 
     private Patient mapToDomain(PatientEntity entity, DoctorPreference doctorPreference) {

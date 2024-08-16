@@ -17,7 +17,7 @@ public class RegisterPatientUseCase implements ForRegisteringPatient {
     public void registerPatient(Patient patient) {
         validatePatientDetails(patient);
 
-        if (patient.getPrivacyAgreement() == null || !patient.getPrivacyAgreement().equals("AGREED")) {
+        if (patient.getPrivacyAgreement() == null || !patient.getPrivacyAgreement().equalsIgnoreCase("AGREED")) {
             throw new IllegalArgumentException("Patient must agree to privacy terms.");
         }
 
