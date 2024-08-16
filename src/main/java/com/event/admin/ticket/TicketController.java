@@ -2,6 +2,7 @@ package com.event.admin.ticket;
 
 import com.event.admin.ticket.mock.SecurityUtil;
 import com.event.admin.ticket.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
@@ -29,6 +31,7 @@ public class TicketController {
         try {
             String query = "INSERT INTO events (name) VALUES (?)";
             jdbcTemplate.update(query, event.getName());
+            log.info("Event created: {}", event.getName());
             return ResponseEntity.ok(event);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -129,8 +132,8 @@ public class TicketController {
                 payment.setSuccessful(true);
 
                 for (Ticket ticket : tickets) {
-                    String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID().toString();
-                    ticket.setQRCode(qrCodeUrl);
+                    String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
+                    ticket.setQrCode(qrCodeUrl);
 
                     String query = "UPDATE tickets SET qr_code = ? WHERE id = ?";
                     jdbcTemplate.update(query, qrCodeUrl, ticket.getId());
