@@ -1,14 +1,13 @@
 package com.event.admin.ticket.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Payment {
     private Long id;
     private double amount;

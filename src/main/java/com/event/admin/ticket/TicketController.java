@@ -44,24 +44,31 @@ public class TicketController {
     @PostMapping("/tickets")
     @Transactional
     public ResponseEntity<List<Ticket>> createTickets(@RequestBody List<Ticket> tickets) {
+        log.info("Creating tickets...");
+        log.info("Number of tickets: {}", tickets.size());
+        log.info("Tickets: {}", tickets);
         try {
             if (tickets.size() > 10) {
                 throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
             }
 
-            String query = "INSERT INTO tickets (price, type, event_id) VALUES (?, ?, ?)";
+
+            String query = "INSERT INTO tickets (price, type, qrcode, event_id) VALUES (?, ?, ?, ?)";
             for (Ticket ticket : tickets) {
+                log.info("Ticket {}", ticket);
                 if (ticket.getPrice() < 0) {
                     throw new IllegalArgumentException("Ticket price cannot be negative.");
                 }
-                jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getEvent().getId());
+                jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getQrCode(), ticket.getEvent().getId());
             }
             log.info("Tickets created: {}", tickets.size());
             tickets.forEach(ticket -> log.info("Ticket type: {}, price: {}", ticket.getType(), ticket.getPrice()));
             return ResponseEntity.ok(tickets);
         } catch (IllegalArgumentException e) {
+            log.error("400 Error creating tickets: {}", e.toString());
             return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
+            log.error("500 Error creating tickets: {}", e.toString());
             return ResponseEntity.status(500).body(null);
         }
     }

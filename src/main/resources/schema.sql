@@ -19,10 +19,22 @@ CREATE TABLE IF NOT EXISTS discountcode
     applicableTicketType VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS event
+CREATE TABLE IF NOT EXISTS events
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS tickets
+(
+    id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    price    DECIMAL(15, 2),
+    type     VARCHAR(255),
+    qrCode   VARCHAR(255),
+    event_id BIGINT,
+    CONSTRAINT fk_events
+        FOREIGN KEY (event_id)
+            REFERENCES events(id)
 );
 
 CREATE TABLE IF NOT EXISTS notification
@@ -47,13 +59,4 @@ CREATE TABLE IF NOT EXISTS payment
     paymentMethod VARCHAR(255),
     description   VARCHAR(255),
     successful    BOOLEAN
-);
-
-CREATE TABLE IF NOT EXISTS ticket
-(
-    id     BIGINT AUTO_INCREMENT PRIMARY KEY,
-    price  DECIMAL(15, 2),
-    type   VARCHAR(255),
-    qrCode VARCHAR(255),
-    event  VARCHAR(255)
 );

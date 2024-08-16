@@ -1,9 +1,16 @@
-INSERT INTO event (name)
+INSERT INTO events (name)
 VALUES ('Spring Boot Workshop'),
        ('Java Conference'),
        ('Microservices Summit'),
        ('Cloud Computing Expo'),
        ('AI and Machine Learning Seminar');
+
+INSERT INTO tickets (price, type, qrCode, event_id)
+VALUES (100.00, 'VIP', 'http://example.com/qr/1', 1),
+       (50.00, 'Standard', 'http://example.com/qr/2', 1),
+       (150.00, 'VIP', 'http://example.com/qr/3', 2),
+       (75.00, 'Standard', 'http://example.com/qr/4',2),
+       (200.00, 'VIP', 'http://example.com/qr/5',3);
 
 INSERT INTO organizer (companyName, contactName)
 VALUES ('Codeartify GmbH', 'John Doe'),
@@ -34,10 +41,3 @@ INSERT INTO payment (amount, paymentMethod, description, successful)
 VALUES (1200.00, 'Credit Card', 'Payment for Spring Boot Workshop', true),
        (1500.00, 'Bank Transfer', 'Payment for Java Conference', true),
        (1800.00, 'Credit Card', 'Payment for Microservices Summit', true);
-
-INSERT INTO ticket (price, type, qrCode, event)
-VALUES (100.00, 'VIP', 'http://example.com/qr/1', 'Spring Boot Workshop'),
-       (50.00, 'Standard', 'http://example.com/qr/2', 'Spring Boot Workshop'),
-       (150.00, 'VIP', 'http://example.com/qr/3', 'Java Conference'),
-       (75.00, 'Standard', 'http://example.com/qr/4', 'Java Conference'),
-       (200.00, 'VIP', 'http://example.com/qr/5', 'Microservices Summit');
