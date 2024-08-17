@@ -2,6 +2,7 @@ package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.Event;
 import com.event.admin.ticket.model.PaymentRequest;
+import com.event.admin.ticket.model.ReserveTicketsRequest;
 import com.event.admin.ticket.model.Ticket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -9,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -26,6 +30,93 @@ class TicketControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    void reserveTicketsForNonexistentEventShouldReturn404() throws Exception {
+        // Arrange
+        long nonExistentEventId = 999L; // Assuming this ID does not exist
+        ReserveTicketsRequest request = new ReserveTicketsRequest(2, "Standard", "johndoe");
+
+        // Act & Assert
+        mockMvc.perform(post("/api/events/{id}/tickets", nonExistentEventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void reserveTicketsForEventWithNoAvailableTicketsShouldReturn204() throws Exception {
+        // Arrange
+        var createdEvent = createNewEvent(new Event(null, "Test Event", 5));
+        addTicketsToEvent(10, "Standard", createdEvent, null);
+        Long eventId = createdEvent.getId();
+
+        ReserveTicketsRequest request = new ReserveTicketsRequest(2, "Standard", "johndoe");
+
+        // Act & Assert
+        mockMvc.perform(post("/api/events/{id}/tickets", eventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void reserveTicketsExceedingLimitShouldReturn400() throws Exception {
+        var createdEvent = createNewEvent(new Event(null, "Test Event", 2));
+        addTicketsToEvent(10, "Standard", createdEvent, null);
+
+        ReserveTicketsRequest request = new ReserveTicketsRequest(3, "Standard", "johndoe");
+
+        mockMvc.perform(post("/api/events/{id}/tickets", createdEvent.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void reserveTicketsSuccessfullyShouldReturn200() throws Exception {
+        var createdEvent = createNewEvent(new Event(null, "Test Event", 5));
+        addTicketsToEvent(10, "Standard", createdEvent, null);
+
+        Long eventId = createdEvent.getId();
+
+        ReserveTicketsRequest request = new ReserveTicketsRequest(2, "Standard", "johndoe");
+
+        // Act & Assert
+        mockMvc.perform(post("/api/events/{id}/tickets", eventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.eventId").value(eventId))
+                .andExpect(jsonPath("$.numberOfReservedTickets").value(2))
+                .andExpect(jsonPath("$.requesterName").value("johndoe"));
+    }
+
+    private Event createNewEvent(Event testEvent) throws Exception {
+        String eventResponse = mockMvc.perform(post("/api/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testEvent)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return objectMapper.readValue(eventResponse, Event.class);
+    }
+
+    private void addTicketsToEvent(int numberOfTickets, String ticketType, Event createdEvent, String reserverId) throws Exception {
+        List<Ticket> tickets = new ArrayList<>();
+
+        for (int i = 0; i < numberOfTickets; i++) {
+            Ticket ticket = new Ticket(null, 50.0, ticketType, null, reserverId, createdEvent);
+            tickets.add(ticket);
+        }
+        mockMvc.perform(post("/api/tickets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tickets)))
+                .andExpect(status().isOk());
+    }
 
     // Test 1: Valid Payment with Credit Card
     @Test
@@ -59,8 +150,8 @@ class TicketControllerIntegrationTest {
 
     // Test 4: More than 10 Tickets
     @Test
-    void testProcessPaymentWithMoreThan10Tickets() throws Exception {
-        PaymentRequest paymentRequest = createInvalidPaymentRequestWithMoreThan10Tickets();
+    void testProcessPaymentWithMoreThan20Tickets() throws Exception {
+        PaymentRequest paymentRequest = createInvalidPaymentRequestWithMoreThan20Tickets();
         mockMvc.perform(post("/api/tickets/payment")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(paymentRequest)))
@@ -113,8 +204,8 @@ class TicketControllerIntegrationTest {
 
     // Helper method to create a valid PaymentRequest
     private PaymentRequest createValidPaymentRequest(String paymentType) {
-        Ticket ticket1 = new Ticket(1L, 100.00, "VIP", null, new Event(1L, "Spring Boot Workshop"));
-        Ticket ticket2 = new Ticket(2L, 50.00, "Standard", null, new Event(1L, "Spring Boot Workshop"));
+        Ticket ticket1 = new Ticket(1L, 100.00, "VIP", null, null, new Event(1L, "Spring Boot Workshop", 5));
+        Ticket ticket2 = new Ticket(2L, 50.00, "Standard", null, null, new Event(1L, "Spring Boot Workshop", 5));
         List<Ticket> tickets = Arrays.asList(ticket1, ticket2);
 
         PaymentRequest paymentRequest = new PaymentRequest();
@@ -131,9 +222,9 @@ class TicketControllerIntegrationTest {
         return paymentRequest;
     }
 
-    // Helper method to create an invalid PaymentRequest with more than 10 tickets
-    private PaymentRequest createInvalidPaymentRequestWithMoreThan10Tickets() {
-        List<Ticket> tickets = createMultipleTickets(11); // More than 10 tickets
+    // Helper method to create an invalid PaymentRequest with more than 20 tickets
+    private PaymentRequest createInvalidPaymentRequestWithMoreThan20Tickets() {
+        List<Ticket> tickets = createMultipleTickets(21); // More than 20 tickets
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setPaymentType("credit_card");
         paymentRequest.setTickets(tickets);
@@ -149,10 +240,10 @@ class TicketControllerIntegrationTest {
     }
 
     private List<Ticket> createMultipleTickets(int count) {
-        Event event = new Event(1L, "Spring Boot Workshop");
+        Event event = new Event(1L, "Spring Boot Workshop", 5);
         Ticket[] tickets = new Ticket[count];
         for (int i = 0; i < count; i++) {
-            tickets[i] = new Ticket((long) i + 1, 100.00, "VIP", null, event);
+            tickets[i] = new Ticket((long) i + 1, 100.00, "VIP", null, null, event);
         }
         return List.of(tickets);
     }

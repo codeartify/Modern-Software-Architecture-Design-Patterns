@@ -2,6 +2,7 @@ package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,10 +10,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,17 +38,19 @@ public class TicketController {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO event (name) VALUES (?)", new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO event (name, tickets_per_buyer) VALUES (?, ?)", new String[]{"id"});
             ps.setString(1, event.getName());
+            ps.setInt(2, event.getTicketsPerBuyer());
             return ps;
         }, keyHolder);
 
         long newEventId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
         Event createdEvent = jdbcTemplate.queryForObject(
-                "SELECT id, name FROM event WHERE id = ?",
+                "SELECT id, name, tickets_per_buyer FROM event WHERE id = ?",
                 new Object[]{newEventId},
-                (rs, rowNum) -> new Event(rs.getLong("id"), rs.getString("name"))
+                (rs, rowNum) -> new Event(rs.getLong("id"), rs.getString("name"), rs.getInt("tickets_per_buyer")
+                )
         );
 
         return ResponseEntity.ok(createdEvent);
@@ -59,7 +59,7 @@ public class TicketController {
     // Endpoint to create tickets for an event
     @PostMapping("/tickets")
     @Transactional
-    public ResponseEntity<List<Ticket>> createTickets(@RequestBody List<Ticket> tickets) {
+    public ResponseEntity<List<Ticket>> createTickets(@Valid @RequestBody List<Ticket> tickets) {
         log.info("Creating tickets...");
         log.info("Number of tickets: {}", tickets.size());
         log.info("Tickets: {}", tickets);
@@ -75,7 +75,32 @@ public class TicketController {
         log.info("Tickets created: {}", tickets.size());
         tickets.forEach(ticket -> log.info("Ticket type: {}, price: {}", ticket.getType(), ticket.getPrice()));
         return ResponseEntity.ok(tickets);
+    }
 
+    @PostMapping("/events/{id}/tickets")
+    @Transactional
+    public ResponseEntity<ReserveTicketsResponse> reserveTicketsForEvent(
+            @PathVariable("id") @NotNull Long eventId,
+            @Valid @RequestBody ReserveTicketsRequest reserveTicketsRequest) {
+        log.info("Reserving tickets for event with ID: {}", eventId);
+        log.info("Reserve tickets request: {}", reserveTicketsRequest);
+
+        // Check if event exists - if not return 404
+        // Check if there are tickets left for the event - if not return 204 (no content)
+        // Check if the number of requested tickets is less or equal to the number of tickets that can be bought by one person - if not return 400 (bad request)
+        // Check if the number of requested tickets for a given ticket type (Standard or VIP) is less or equal to the number of available tickets - if not, add a warning to the response
+        // Get tickets for event and reduce the number of requested tickets from the available tickets - if not return 500 (internal server error)
+        // Return a response with the number of reserved tickets, the event id, and the requester name
+
+
+        var body = new ReserveTicketsResponse(
+                eventId,
+                reserveTicketsRequest.getNumberOfTickets(),
+                reserveTicketsRequest.getRequesterName(),
+                "",
+                "");
+
+        return ResponseEntity.ok(body);
     }
 
     // Endpoint to process a payment
@@ -87,8 +112,8 @@ public class TicketController {
         double totalAmount = 0;
         double discountTotal = 0;
 
-        if (paymentRequest.getTickets().size() > 10) {
-            throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
+        if (paymentRequest.getTickets().size() > 20) {
+            throw new IllegalArgumentException("Cannot purchase more than 20 overall tickets at a time.");
         }
 
         for (Ticket ticket : paymentRequest.getTickets()) {
