@@ -140,6 +140,7 @@ public class TicketController {
         payment.setAmount(totalAmount);
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
+        var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
         if ("credit_card".equalsIgnoreCase(paymentRequest.getPaymentType())) {
             SecurityUtil.encryptPaymentInfo(payment.getPaymentMethod());
             payment.setDescription("Payment for tickets via credit card");
@@ -162,7 +163,7 @@ public class TicketController {
             }
 
             String query = "SELECT * FROM organizer WHERE company_name = ?";
-            Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{"Codeartify GmbH"}, (rs, _) -> {
+            Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{organizerCompanyName}, (rs, _) -> {
                 Organizer organizer1 = new Organizer();
                 organizer1.setId(rs.getLong("id"));
                 organizer1.setCompanyName(rs.getString("company_name"));
@@ -198,7 +199,7 @@ public class TicketController {
             bill.setAmount(totalAmountWithFee);
             bill.setIban(paymentRequest.getIban());
             bill.setDescription(paymentRequest.getBillDescription());
-            bill.setOrganizerCompanyName("Codeartify GmbH");
+            bill.setOrganizerCompanyName(organizerCompanyName);
             bill.setCreationDate(LocalDate.now());
             bill.setPaid(false);
 
@@ -212,7 +213,7 @@ public class TicketController {
 
             // Notify the organizer
             String query2 = "SELECT * FROM organizer WHERE company_name = ?";
-            Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{"Codeartify GmbH"}, new RowMapper<Organizer>() {
+            Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{organizerCompanyName}, new RowMapper<Organizer>() {
                 @Override
                 public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
                     Organizer organizer = new Organizer();

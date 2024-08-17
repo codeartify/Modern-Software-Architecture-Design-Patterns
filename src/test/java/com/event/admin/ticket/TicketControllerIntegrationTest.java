@@ -122,7 +122,8 @@ class TicketControllerIntegrationTest {
         paymentRequest.setTickets(tickets);
         paymentRequest.setPaymentMethod("CreditCard");
         paymentRequest.setDiscountCode("SUMMER20");
-        paymentRequest.setBuyerCompanyName("Codertify GmbH");
+        paymentRequest.setBuyerCompanyName("SuperSoftware AG");
+        paymentRequest.setOrganizerCompanyName("Codeartify GmbH");
         paymentRequest.setBuyerName("John Doe");
         paymentRequest.setIban("DE89370400440532013000");
         paymentRequest.setBillDescription("Payment for Spring Boot Workshop tickets");
@@ -132,15 +133,14 @@ class TicketControllerIntegrationTest {
 
     // Helper method to create an invalid PaymentRequest with more than 10 tickets
     private PaymentRequest createInvalidPaymentRequestWithMoreThan10Tickets() {
-        Event event = new Event(1L, "Spring Boot Workshop");
         List<Ticket> tickets = createMultipleTickets(11); // More than 10 tickets
-
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setPaymentType("credit_card");
         paymentRequest.setTickets(tickets);
         paymentRequest.setPaymentMethod("CreditCard");
         paymentRequest.setDiscountCode("SUMMER20");
-        paymentRequest.setBuyerCompanyName("Codertify GmbH");
+        paymentRequest.setBuyerCompanyName("SuperSoftware GmbH");
+        paymentRequest.setOrganizerCompanyName("Codeartify GmbH");
         paymentRequest.setBuyerName("John Doe");
         paymentRequest.setIban("DE89370400440532013000");
         paymentRequest.setBillDescription("Payment for Spring Boot Workshop tickets");

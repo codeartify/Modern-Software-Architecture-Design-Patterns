@@ -1,6 +1,7 @@
 package com.event.admin.ticket.model;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public class PaymentRequest {
     private String buyerName;
     private String iban;
     private String billDescription;
+    @NotBlank(message = "Payment must go to a company")
+    private String organizerCompanyName;
 }
