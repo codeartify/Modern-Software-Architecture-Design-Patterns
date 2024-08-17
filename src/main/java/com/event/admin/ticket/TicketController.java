@@ -68,12 +68,9 @@ public class TicketController {
             throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
         }
 
-        String query = "INSERT INTO ticket (price, type, qrcode, event_id) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO ticket (price, type, qr_code, event_id) VALUES(?, ?, ?, ?)";
         for (Ticket ticket : tickets) {
             log.info("Ticket {}", ticket);
-            if (ticket.getPrice() < 0) {
-                throw new IllegalArgumentException("Ticket price cannot be negative.");
-            }
             jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getQrCode(), ticket.getEvent().getId());
         }
         log.info("Tickets created: {}", tickets.size());
