@@ -1,6 +1,5 @@
 package com.event.admin.ticket;
 
-import com.event.admin.ticket.mock.SecurityUtil;
 import com.event.admin.ticket.model.*;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -139,7 +138,6 @@ public class TicketController {
 
         var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
         if ("credit_card".equalsIgnoreCase(paymentRequest.getPaymentType())) {
-            SecurityUtil.encryptPaymentInfo(payment.getPaymentMethod());
             payment.setDescription("Payment for tickets via credit card");
             payment.setSuccessful(true);
 
