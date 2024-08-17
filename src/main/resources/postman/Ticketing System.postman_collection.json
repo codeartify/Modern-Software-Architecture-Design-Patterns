@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "83b2c725-746e-4efb-ae4f-b464368ca7cd",
+		"name": "Ticketing System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "957205"
+	},
+	"item": [
+		{
+			"name": "events",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"New Event\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tickets",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"price\": 100.00,\n    \"type\": \"VIP\",\n    \"qrCode\": \"http://example.com/qr/1\",\n    \"event\": {\n      \"id\": 1,\n      \"name\": \"Spring Boot Workshop\"\n    }\n  },\n  {\n    \"price\": 50.00,\n    \"type\": \"Standard\",\n    \"qrCode\": \"http://example.com/qr/2\",\n    \"event\": {\n      \"id\": 1,\n      \"name\": \"Spring Boot Workshop\"\n    }\n  },\n  {\n    \"price\": 150.00,\n    \"type\": \"VIP\",\n    \"qrCode\": \"http://example.com/qr/3\",\n    \"event\": {\n      \"id\": 2,\n      \"name\": \"Java Conference\"\n    }\n  },\n  {\n    \"price\": 75.00,\n    \"type\": \"Standard\",\n    \"qrCode\": \"http://example.com/qr/4\",\n    \"event\": {\n      \"id\": 2,\n      \"name\": \"Java Conference\"\n    }\n  },\n  {\n    \"price\": 200.00,\n    \"type\": \"VIP\",\n    \"qrCode\": \"http://example.com/qr/5\",\n    \"event\": {\n      \"id\": 3,\n      \"name\": \"Microservices Summit\"\n    }\n  }\n]\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/tickets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payments",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"paymentType\":\"credit_card\",\"tickets\":[{\"id\":1,\"price\":100.0,\"type\":\"VIP\",\"qrCode\":null,\"event\":{\"id\":1,\"name\":\"Spring Boot Workshop\"}},{\"id\":2,\"price\":50.0,\"type\":\"Standard\",\"qrCode\":null,\"event\":{\"id\":1,\"name\":\"Spring Boot Workshop\"}}],\"paymentMethod\":\"CreditCard\",\"discountCode\":\"SUMMER20\",\"buyerCompanyName\":\"SuperSoftware AG\",\"buyerName\":\"John Doe\",\"iban\":\"DE89370400440532013000\",\"billDescription\":\"Payment for Spring Boot Workshop tickets\",\"organizerCompanyName\":\"Codertify GmbH\"}\n  ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/tickets/payment",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						"payment"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
