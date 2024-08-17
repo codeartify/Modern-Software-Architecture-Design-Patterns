@@ -1,5 +1,6 @@
 package com.event.admin.ticket.model;
 
+import jakarta.validation.Valid;
 import lombok.*;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 @ToString
 public class PaymentRequest {
     private String paymentType;
-    private List<Ticket> tickets;
+    private List<@Valid Ticket> tickets;
     private String paymentMethod;
     private String discountCode;
     private String buyerCompanyName;
