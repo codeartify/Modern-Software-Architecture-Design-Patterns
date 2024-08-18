@@ -27,6 +27,7 @@ public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
 
+
     public TicketController(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -38,25 +39,25 @@ public class TicketController {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO event (name, tickets_per_buyer) VALUES (?, ?)", new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO event (name, tickets_per_booker) VALUES (?, ?)", new String[]{"id"});
             ps.setString(1, event.getName());
-            ps.setInt(2, event.getTicketsPerBuyer());
+            ps.setInt(2, event.getNumberOfTicketsPerBooker());
             return ps;
         }, keyHolder);
 
         long newEventId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
         Event createdEvent = jdbcTemplate.queryForObject(
-                "SELECT id, name, tickets_per_buyer FROM event WHERE id = ?",
+                "SELECT id, name, tickets_per_booker FROM event WHERE id = ?",
                 new Object[]{newEventId},
-                (rs, rowNum) -> new Event(rs.getLong("id"), rs.getString("name"), rs.getInt("tickets_per_buyer")
+                (rs, rowNum) -> new Event(rs.getLong("id"), rs.getString("name"), rs.getInt("tickets_per_booker")
                 )
         );
 
         return ResponseEntity.ok(createdEvent);
     }
-
     // Endpoint to create tickets for an event
+
     @PostMapping("/tickets")
     @Transactional
     public ResponseEntity<List<Ticket>> createTickets(@Valid @RequestBody List<Ticket> tickets) {
@@ -67,10 +68,10 @@ public class TicketController {
             throw new IllegalArgumentException("Cannot purchase more than 10 tickets at a time.");
         }
 
-        String query = "INSERT INTO ticket (price, type, qr_code, event_id) VALUES(?, ?, ?, ?)";
+        String query = "INSERT INTO ticket (price, type, qr_code, booker_id, event_id) VALUES(?, ?, ?, ?, ?)";
         for (Ticket ticket : tickets) {
             log.info("Ticket {}", ticket);
-            jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getQrCode(), ticket.getEvent().getId());
+            jdbcTemplate.update(query, ticket.getPrice(), ticket.getType(), ticket.getQrCode(), ticket.getBookerId(), ticket.getEvent().getId());
         }
         log.info("Tickets created: {}", tickets.size());
         tickets.forEach(ticket -> log.info("Ticket type: {}, price: {}", ticket.getType(), ticket.getPrice()));
@@ -96,13 +97,10 @@ public class TicketController {
         var body = new ReserveTicketsResponse(
                 eventId,
                 reserveTicketsRequest.getNumberOfTickets(),
-                reserveTicketsRequest.getRequesterName(),
-                "",
-                "");
+                reserveTicketsRequest.getBookerUsername());
 
         return ResponseEntity.ok(body);
     }
-
     // Endpoint to process a payment
     @PostMapping("/tickets/payment")
     @Transactional

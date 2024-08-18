@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS event
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    number_of_tickets_per_booker INT
+    tickets_per_booker INT
 );
 
 CREATE TABLE IF NOT EXISTS ticket

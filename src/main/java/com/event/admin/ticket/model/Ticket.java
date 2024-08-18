@@ -15,7 +15,7 @@ public class Ticket {
     private double price;
     private String type;
     private String qrCode;
-    private long bookerId;
+    private Long bookerId;
     private boolean isPaid;
     private Event event;
 }

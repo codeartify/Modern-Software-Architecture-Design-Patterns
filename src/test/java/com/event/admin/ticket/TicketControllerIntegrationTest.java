@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class TicketControllerIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,11 +42,12 @@ class TicketControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+
     @Test
     void reserveTicketsForEventWithNoAvailableTicketsShouldReturn204() throws Exception {
         // Arrange
         var createdEvent = createNewEvent(new Event(null, "Test Event", 5));
-        addTicketsToEvent(10, "Standard", createdEvent, null);
+        addTicketsToEvent(10, "Standard", createdEvent, 9999999999L);
         Long eventId = createdEvent.getId();
 
         ReserveTicketsRequest request = new ReserveTicketsRequest(2, "Standard", "johndoe");
@@ -59,6 +58,7 @@ class TicketControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
     }
+
 
     @Test
     void reserveTicketsExceedingLimitShouldReturn400() throws Exception {
@@ -105,11 +105,11 @@ class TicketControllerIntegrationTest {
         return objectMapper.readValue(eventResponse, Event.class);
     }
 
-    private void addTicketsToEvent(int numberOfTickets, String ticketType, Event createdEvent, String reserverId) throws Exception {
+    private void addTicketsToEvent(int numberOfTickets, String ticketType, Event createdEvent, Long bookerId) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
 
         for (int i = 0; i < numberOfTickets; i++) {
-            Ticket ticket = new Ticket(null, 50.0, ticketType, null, reserverId, createdEvent);
+            Ticket ticket = new Ticket(null, 50.0, ticketType, null, bookerId, false, createdEvent);
             tickets.add(ticket);
         }
         mockMvc.perform(post("/api/tickets")
@@ -204,8 +204,8 @@ class TicketControllerIntegrationTest {
 
     // Helper method to create a valid PaymentRequest
     private PaymentRequest createValidPaymentRequest(String paymentType) {
-        Ticket ticket1 = new Ticket(1L, 100.00, "VIP", null, null, new Event(1L, "Spring Boot Workshop", 5));
-        Ticket ticket2 = new Ticket(2L, 50.00, "Standard", null, null, new Event(1L, "Spring Boot Workshop", 5));
+        Ticket ticket1 = new Ticket(1L, 100.00, "VIP", null, null, false, new Event(1L, "Spring Boot Workshop", 5));
+        Ticket ticket2 = new Ticket(2L, 50.00, "Standard", null, null, false, new Event(1L, "Spring Boot Workshop", 5));
         List<Ticket> tickets = Arrays.asList(ticket1, ticket2);
 
         PaymentRequest paymentRequest = new PaymentRequest();
@@ -243,7 +243,7 @@ class TicketControllerIntegrationTest {
         Event event = new Event(1L, "Spring Boot Workshop", 5);
         Ticket[] tickets = new Ticket[count];
         for (int i = 0; i < count; i++) {
-            tickets[i] = new Ticket((long) i + 1, 100.00, "VIP", null, null, event);
+            tickets[i] = new Ticket((long) i + 1, 100.00, "VIP", null, null, false, event);
         }
         return List.of(tickets);
     }

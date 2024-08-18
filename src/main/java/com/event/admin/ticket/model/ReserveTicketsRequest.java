@@ -18,5 +18,5 @@ public class ReserveTicketsRequest {
     @Pattern(regexp = "Standard|VIP", message = "Ticket type must be either 'Standard' or 'VIP'")
     private String ticketType;
     @NotBlank
-    private String requesterName;
+    private String bookerUsername;
 }

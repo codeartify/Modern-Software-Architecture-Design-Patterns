@@ -1,4 +1,4 @@
-INSERT INTO event (name, tickets_per_buyer)
+INSERT INTO event (name, tickets_per_booker)
 VALUES ('Spring Boot Workshop', 4),
        ('Java Conference', 3),
        ('Microservices Summit', 10),
