@@ -1,4 +1,4 @@
-package com.event.admin.ticket.model;
+package com.event.admin.ticket.reservation.adapter.in;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

@@ -1,11 +1,12 @@
 package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.reservation.adapter.in.ReserveTicketsRequest;
 import com.event.admin.ticket.reservation.adapter.out.presenter.ReserveTicketsForEventPresenter;
 import com.event.admin.ticket.reservation.application.ports.in.ReserveTickets;
-import com.event.admin.ticket.reservation.application.usecase.ReserveTicketsUseCase;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,17 +26,13 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
-    private final ReserveTickets reserveTickets;
 
-    public TicketController(JdbcTemplate jdbcTemplate, ReserveTickets reserveTickets) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.reserveTickets = reserveTickets;
 
-    }
 
     // Endpoint to create a new event
     @PostMapping("/events")
@@ -84,28 +81,6 @@ public class TicketController {
     }
 
 
-    @PostMapping("/events/{id}/tickets")
-    @Transactional
-    public ResponseEntity<Object> reserveTicketsForEvent(
-            @PathVariable("id") @NotNull Long eventId,
-            @Valid @RequestBody ReserveTicketsRequest reserveTicketsRequest) {
-        log.info("Reserving tickets for event with ID: {}", eventId);
-        log.info("Reserve tickets request: {}", reserveTicketsRequest);
-
-        var presenter = new ReserveTicketsForEventPresenter();
-
-        var ticketType = reserveTicketsRequest.getTicketType();
-        var numberOfTickets = reserveTicketsRequest.getNumberOfTickets();
-        var bookerUsername = reserveTicketsRequest.getBookerUsername();
-
-        reserveTickets.execute(eventId, ticketType, numberOfTickets, bookerUsername, presenter, presenter);
-
-        if (presenter.hasError()) {
-            return presenter.getError();
-        } else {
-            return presenter.getSuccess();
-        }
-    }
 
     // Endpoint to process a payment
     @PostMapping("/tickets/payment")

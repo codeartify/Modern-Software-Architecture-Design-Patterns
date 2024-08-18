@@ -1,6 +1,6 @@
 package com.event.admin.ticket.reservation.adapter.out.presenter;
 
-import com.event.admin.ticket.model.ReserveTicketsResponse;
+import com.event.admin.ticket.reservation.adapter.in.ReserveTicketsResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 

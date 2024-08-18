@@ -1,4 +1,4 @@
-package com.event.admin.ticket.model;
+package com.event.admin.ticket.reservation.adapter.in;
 
 import lombok.*;
 
