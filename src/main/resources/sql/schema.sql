@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS payment
     successful     BOOLEAN
 );
 
-CREATE TABLE IF NOT EXISTS event_user (
+CREATE TABLE IF NOT EXISTS booker (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    username VARCHAR(255),
     email VARCHAR(255),
     company_name VARCHAR(255)
 );

@@ -71,7 +71,7 @@ VALUES (1200.00, 'Credit Card', 'Payment for Spring Boot Workshop', true),
        (1500.00, 'Bank Transfer', 'Payment for Java Conference', true),
        (1800.00, 'Credit Card', 'Payment for Microservices Summit', true);
 
-INSERT INTO event_user (name, email, company_name)
+INSERT INTO booker (username, email, company_name)
 VALUES ('johndoe', 'johndoe@gmail.com', ''),
        ('janesmith', 'janedoe@host.com', ''),
        ('alicejohnson', 'alice.johnson@innovate.inc', 'Innovate Inc.'),
