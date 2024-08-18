@@ -101,6 +101,7 @@ public class TicketController {
 
         return ResponseEntity.ok(body);
     }
+
     // Endpoint to process a payment
     @PostMapping("/tickets/payment")
     @Transactional
