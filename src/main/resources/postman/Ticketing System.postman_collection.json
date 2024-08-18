@@ -84,6 +84,35 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "reserve tickets",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"eventId\":1,\n    \"numberOfTickets\":3,\n    \"requesterName\": \"johndoe\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/events/2/tickets/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events",
+						"2",
+						"tickets",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
