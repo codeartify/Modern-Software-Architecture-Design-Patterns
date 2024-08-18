@@ -14,5 +14,5 @@ public class Event {
     @NotBlank(message = "An event must have a name")
     private String name;
     @Min(value = 1, message = "Number of tickets a buyer can buy at a time needs to be larger 0")
-    private int ticketsPerBuyer;
+    private int numberOfTicketsPerBooker;
 }

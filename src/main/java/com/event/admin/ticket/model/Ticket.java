@@ -1,7 +1,6 @@
 package com.event.admin.ticket.model;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Setter
@@ -16,6 +15,7 @@ public class Ticket {
     private double price;
     private String type;
     private String qrCode;
-    private String reserverId;
+    private long bookerId;
+    private boolean isPaid;
     private Event event;
 }
