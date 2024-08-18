@@ -18,4 +18,15 @@ public final class Ticket2 {
         this.bookerId = bookerId;
     }
 
+    boolean isReserved() {
+        return getBookerId() != null && getBookerId() > 0;
+    }
+
+    boolean canBeReserved() {
+        return !isReserved();
+    }
+
+    boolean isOfType(String ticketType) {
+        return ticketType.equals(getType());
+    }
 }

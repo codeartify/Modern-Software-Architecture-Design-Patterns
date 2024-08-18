@@ -4,21 +4,19 @@ import java.util.List;
 
 public record TicketsLeft(List<Ticket2> ticketsLeft) {
 
-    public int count() {
-        return ticketsLeft.size();
-    }
-
     public long numberOfTicketsLeftForType(String ticketType) {
         return ticketsLeft()
                 .stream()
-                .filter(ticket -> ticketType.equals(ticket.getType()) && ticket.getBookerId() == 0)
+                .filter(ticket -> ticket.isOfType(ticketType) && ticket.canBeReserved())
                 .count();
     }
 
     public void markTicketsAsReserved(int numberOfTickets, String ticketType, Booker booker) {
         for (Ticket2 ticket : ticketsLeft) {
-            if (ticketType.equals(ticket.getType())) {
+            if (ticket.isOfType(ticketType)) {
                 ticket.bookedBy(booker.id());
+            }
+            if (ticket.isOfType(ticketType)) {
                 numberOfTickets--;
             }
             if (numberOfTickets == 0) {
@@ -26,4 +24,14 @@ public record TicketsLeft(List<Ticket2> ticketsLeft) {
             }
         }
     }
+
+    public boolean noTicketsLeft() {
+        return !hasReservableTickets();
+    }
+
+    public boolean hasReservableTickets() {
+        return ticketsLeft.stream()
+                .anyMatch(Ticket2::canBeReserved);
+    }
+
 }

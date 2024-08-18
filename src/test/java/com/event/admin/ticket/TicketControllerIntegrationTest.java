@@ -61,6 +61,24 @@ class TicketControllerIntegrationTest {
 
 
     @Test
+    void reserveTicketsForEventWithNoAvailableTicketsForTypeShouldReturn204() throws Exception {
+        // Arrange
+        var createdEvent = createNewEvent(new Event(null, "Test Event", 5));
+        addTicketsToEvent(10, "Standard", createdEvent, null);
+        Long eventId = createdEvent.getId();
+
+        // request for VIP tickets
+        ReserveTicketsRequest request = new ReserveTicketsRequest(2, "VIP", "johndoe");
+
+        // Act & Assert
+        mockMvc.perform(post("/api/events/{id}/tickets", eventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+    }
+
+
+    @Test
     void reserveTicketsExceedingLimitShouldReturn400() throws Exception {
         var createdEvent = createNewEvent(new Event(null, "Test Event", 2));
         addTicketsToEvent(10, "Standard", createdEvent, null);

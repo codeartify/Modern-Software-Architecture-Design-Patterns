@@ -31,7 +31,7 @@ public class ReserveTicketsUseCase implements ReserveTickets {
             Event2 event = this.findEvent.findById(eventId).orElseThrow(() -> new MissingEventException("Event not found"));
             TicketsLeft ticketsLeft = event.getTicketsLeft();
 
-            if (ticketsLeft.count() == 0) {
+            if (ticketsLeft.noTicketsLeft()) {
                 throw new AllTicketsSoldException("No tickets left for the event");
             }
 
@@ -53,4 +53,5 @@ public class ReserveTicketsUseCase implements ReserveTickets {
             presentFailure.present(e);
         }
     }
+
 }
