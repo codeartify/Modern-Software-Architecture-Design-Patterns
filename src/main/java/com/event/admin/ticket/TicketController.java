@@ -1,6 +1,16 @@
 package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.reservation.adapter.out.presenter.PresentBookTicketsFailure;
+import com.event.admin.ticket.reservation.adapter.out.presenter.ReserveTicketsForEventPresenter;
+import com.event.admin.ticket.reservation.application.exception.*;
+import com.event.admin.ticket.reservation.application.ports.out.FindBooker;
+import com.event.admin.ticket.reservation.application.ports.out.FindEvent;
+import com.event.admin.ticket.reservation.application.ports.out.PresentBookTicketsSuccess;
+import com.event.admin.ticket.reservation.application.ports.out.UpdateEvent;
+import com.event.admin.ticket.reservation.domain.Booker;
+import com.event.admin.ticket.reservation.domain.Event2;
+import com.event.admin.ticket.reservation.domain.TicketsLeft;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +37,15 @@ public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private FindEvent findEvent;
+    private FindBooker findBooker;
+    private UpdateEvent updateEvent;
 
-    public TicketController(JdbcTemplate jdbcTemplate) {
+    public TicketController(JdbcTemplate jdbcTemplate, FindEvent findEvent, FindBooker findBooker, UpdateEvent updateEvent) {
         this.jdbcTemplate = jdbcTemplate;
+        this.findEvent = findEvent;
+        this.findBooker = findBooker;
+        this.updateEvent = updateEvent;
     }
 
     // Endpoint to create a new event
@@ -78,28 +94,52 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
+
     @PostMapping("/events/{id}/tickets")
     @Transactional
-    public ResponseEntity<ReserveTicketsResponse> reserveTicketsForEvent(
+    public ResponseEntity<Object> reserveTicketsForEvent(
             @PathVariable("id") @NotNull Long eventId,
             @Valid @RequestBody ReserveTicketsRequest reserveTicketsRequest) {
         log.info("Reserving tickets for event with ID: {}", eventId);
         log.info("Reserve tickets request: {}", reserveTicketsRequest);
 
-        // Check if event exists - if not return 404
-        // Check if there are tickets left for the event - if not return 204 (no content)
-        // Check if the number of requested tickets is less or equal to the number of tickets that can be bought by one person - if not return 400 (bad request)
-        // Check if the number of requested tickets for a given ticket type (Standard or VIP) is less or equal to the number of available tickets - if not, add a warning to the response
-        // Get tickets for event and reduce the number of requested tickets from the available tickets - if not return 500 (internal server error)
-        // Return a response with the number of reserved tickets, the event id, and the requester name
+        var presenter = new ReserveTicketsForEventPresenter();
 
+        reserveTicketForEvent(eventId, presenter, presenter, reserveTicketsRequest.getNumberOfTickets(), reserveTicketsRequest.getBookerUsername(), reserveTicketsRequest.getTicketType());
+        if (presenter.hasError()) {
+            return presenter.getError();
+        } else {
+            return presenter.getSuccess();
+        }
+    }
 
-        var body = new ReserveTicketsResponse(
-                eventId,
-                reserveTicketsRequest.getNumberOfTickets(),
-                reserveTicketsRequest.getBookerUsername());
+    private void reserveTicketForEvent(Long eventId, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure, int numberOfTickets, String bookerUsername, String ticketType) {
+        try {
+            Booker booker = this.findBooker.findByUsername(bookerUsername).orElseThrow(() -> new MissingBookerException("Booker not found"));
+            Event2 event = this.findEvent.findById(eventId).orElseThrow(() -> new MissingEventException("Event not found"));
+            TicketsLeft ticketsLeft = event.getTicketsLeft();
 
-        return ResponseEntity.ok(body);
+            if (ticketsLeft.count() == 0) {
+                throw new AllTicketsSoldException("No tickets left for the event");
+            }
+
+            if (event.exceedsNumberOfTicketsPerBooker(numberOfTickets)) {
+                throw new NumberOfTicketsPerBuyerExceededException("Cannot reserve more tickets than allowed per buyer");
+            }
+
+            if (numberOfTickets > ticketsLeft.numberOfTicketsLeftForType(ticketType)) {
+                throw new TooFewTicketsOfTypeLeftException("Not enough tickets of type " + ticketType + " left for the event");
+            }
+
+            ticketsLeft.markTicketsAsReserved(numberOfTickets, ticketType, booker);
+            event.updateTicketsLeft(ticketsLeft);
+
+            this.updateEvent.withValue(event);
+
+            presentSuccess.present(eventId, numberOfTickets, bookerUsername);
+        } catch (Exception e) {
+            presentFailure.present(e);
+        }
     }
 
     // Endpoint to process a payment
