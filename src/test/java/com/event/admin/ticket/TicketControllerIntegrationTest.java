@@ -119,7 +119,7 @@ class TicketControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eventId").value(eventId))
                 .andExpect(jsonPath("$.numberOfReservedTickets").value(2))
-                .andExpect(jsonPath("$.requesterName").value("johndoe"));
+                .andExpect(jsonPath("$.bookerUsername").value("johndoe"));
     }
 
     private Event createNewEvent(Event testEvent) throws Exception {

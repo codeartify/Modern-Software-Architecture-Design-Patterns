@@ -49,8 +49,19 @@ public class EventRepository implements FindEvent, UpdateEvent {
 
     @Override
     public Event2 withValue(Event2 event) {
-        event.getTicketsLeft().ticketsLeft().forEach(ticket -> {
-            jdbcTemplate.update("UPDATE ticket SET booker_id = ? WHERE event_id = ? AND type = ? AND booker_id IS NULL",
+        event.getTicketsLeft().ticketsLeft()
+                .stream()
+                .filter(Ticket2::isReserved)
+                .forEach(ticket -> {
+            jdbcTemplate.update("UPDATE ticket \n" +
+                            "SET booker_id = ?\n" +
+                            "WHERE id = (\n" +
+                            "    SELECT id FROM (\n" +
+                            "        SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn \n" +
+                            "        FROM ticket \n" +
+                            "        WHERE event_id = ? AND type = ? AND booker_id IS NULL\n" +
+                            "    ) AS t WHERE rn = 1\n" +
+                            ");",
                     ticket.getBookerId(),  // Corrected: Booker ID should be set here
                     event.getId(),         // Assuming event has a getId method
                     ticket.getType());
