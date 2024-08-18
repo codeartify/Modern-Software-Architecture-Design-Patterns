@@ -11,5 +11,5 @@ import lombok.*;
 public class ReserveTicketsResponse {
     private long eventId;
     private int numberOfReservedTickets;
-    private String requesterName;
+    private String bookerUsername;
 }

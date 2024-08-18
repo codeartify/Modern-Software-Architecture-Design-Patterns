@@ -32,6 +32,7 @@ public class ReserveTicketsController {
         var numberOfTickets = reserveTicketsRequest.getNumberOfTickets();
         var bookerUsername = reserveTicketsRequest.getBookerUsername();
 
+        log.info("Reserving {} tickets of type {} for user {}", numberOfTickets, ticketType, bookerUsername);
         reserveTickets.execute(eventId, ticketType, numberOfTickets, bookerUsername, presenter, presenter);
 
         if (presenter.hasError()) {
