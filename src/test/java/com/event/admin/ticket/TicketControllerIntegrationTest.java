@@ -30,6 +30,18 @@ class TicketControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
+    void reserveTicketsForNonexistentBookerShouldReturn404() throws Exception {
+        var nonexistantBooker = "missingNo";
+        ReserveTicketsRequest request = new ReserveTicketsRequest(2, "Standard", nonexistantBooker);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/events/{id}/tickets", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void reserveTicketsForNonexistentEventShouldReturn404() throws Exception {
         // Arrange
         long nonExistentEventId = 999L; // Assuming this ID does not exist
