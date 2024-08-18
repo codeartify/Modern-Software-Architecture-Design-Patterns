@@ -24,11 +24,9 @@ public class ReserveTicketsForEventPresenter implements com.event.admin.ticket.r
 
     public ResponseEntity getError() {
         var errorResponse = switch (error.getClass().getSimpleName()) {
-            case "MissingBookerException" -> ResponseEntity.notFound().build();
-            case "MissingEventException" -> ResponseEntity.notFound().build();
-            case "AllTicketsSoldException" -> ResponseEntity.noContent().build();
+            case "MissingBookerException", "MissingEventException" -> ResponseEntity.notFound().build();
+            case "AllTicketsSoldException", "TooFewTicketsOfTypeLeftException" -> ResponseEntity.noContent().build();
             case "NumberOfTicketsPerBuyerExceededException" -> ResponseEntity.badRequest().body(error.getMessage());
-            case "TooFewTicketsOfTypeLeftException" -> ResponseEntity.noContent().build();
             default -> ResponseEntity.internalServerError().body(error.getMessage());
         };
 

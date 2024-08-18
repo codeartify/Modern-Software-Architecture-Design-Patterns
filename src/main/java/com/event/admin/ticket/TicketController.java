@@ -1,16 +1,9 @@
 package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
-import com.event.admin.ticket.reservation.adapter.out.presenter.PresentBookTicketsFailure;
 import com.event.admin.ticket.reservation.adapter.out.presenter.ReserveTicketsForEventPresenter;
-import com.event.admin.ticket.reservation.application.exception.*;
-import com.event.admin.ticket.reservation.application.ports.out.FindBooker;
-import com.event.admin.ticket.reservation.application.ports.out.FindEvent;
-import com.event.admin.ticket.reservation.application.ports.out.PresentBookTicketsSuccess;
-import com.event.admin.ticket.reservation.application.ports.out.UpdateEvent;
-import com.event.admin.ticket.reservation.domain.Booker;
-import com.event.admin.ticket.reservation.domain.Event2;
-import com.event.admin.ticket.reservation.domain.TicketsLeft;
+import com.event.admin.ticket.reservation.application.ports.in.ReserveTickets;
+import com.event.admin.ticket.reservation.application.usecase.ReserveTicketsUseCase;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -36,16 +29,12 @@ import java.util.UUID;
 public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
+    private final ReserveTickets reserveTickets;
 
-    private FindEvent findEvent;
-    private FindBooker findBooker;
-    private UpdateEvent updateEvent;
-
-    public TicketController(JdbcTemplate jdbcTemplate, FindEvent findEvent, FindBooker findBooker, UpdateEvent updateEvent) {
+    public TicketController(JdbcTemplate jdbcTemplate, ReserveTickets reserveTickets) {
         this.jdbcTemplate = jdbcTemplate;
-        this.findEvent = findEvent;
-        this.findBooker = findBooker;
-        this.updateEvent = updateEvent;
+        this.reserveTickets = reserveTickets;
+
     }
 
     // Endpoint to create a new event
@@ -105,40 +94,16 @@ public class TicketController {
 
         var presenter = new ReserveTicketsForEventPresenter();
 
-        reserveTicketForEvent(eventId, presenter, presenter, reserveTicketsRequest.getNumberOfTickets(), reserveTicketsRequest.getBookerUsername(), reserveTicketsRequest.getTicketType());
+        var ticketType = reserveTicketsRequest.getTicketType();
+        var numberOfTickets = reserveTicketsRequest.getNumberOfTickets();
+        var bookerUsername = reserveTicketsRequest.getBookerUsername();
+
+        reserveTickets.execute(eventId, ticketType, numberOfTickets, bookerUsername, presenter, presenter);
+
         if (presenter.hasError()) {
             return presenter.getError();
         } else {
             return presenter.getSuccess();
-        }
-    }
-
-    private void reserveTicketForEvent(Long eventId, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure, int numberOfTickets, String bookerUsername, String ticketType) {
-        try {
-            Booker booker = this.findBooker.findByUsername(bookerUsername).orElseThrow(() -> new MissingBookerException("Booker not found"));
-            Event2 event = this.findEvent.findById(eventId).orElseThrow(() -> new MissingEventException("Event not found"));
-            TicketsLeft ticketsLeft = event.getTicketsLeft();
-
-            if (ticketsLeft.count() == 0) {
-                throw new AllTicketsSoldException("No tickets left for the event");
-            }
-
-            if (event.exceedsNumberOfTicketsPerBooker(numberOfTickets)) {
-                throw new NumberOfTicketsPerBuyerExceededException("Cannot reserve more tickets than allowed per buyer");
-            }
-
-            if (numberOfTickets > ticketsLeft.numberOfTicketsLeftForType(ticketType)) {
-                throw new TooFewTicketsOfTypeLeftException("Not enough tickets of type " + ticketType + " left for the event");
-            }
-
-            ticketsLeft.markTicketsAsReserved(numberOfTickets, ticketType, booker);
-            event.updateTicketsLeft(ticketsLeft);
-
-            this.updateEvent.withValue(event);
-
-            presentSuccess.present(eventId, numberOfTickets, bookerUsername);
-        } catch (Exception e) {
-            presentFailure.present(e);
         }
     }
 
