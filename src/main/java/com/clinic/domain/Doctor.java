@@ -1,6 +1,6 @@
 package com.clinic.domain;
 
-import com.clinic.adapter.out.persistence.entity.Gender;
+import com.clinic.db.entity.Gender;
 
 public class Doctor {
     private final String id;

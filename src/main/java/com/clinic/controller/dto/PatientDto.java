@@ -1,4 +1,4 @@
-package com.clinic.adapter.in.dto;
+package com.clinic.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

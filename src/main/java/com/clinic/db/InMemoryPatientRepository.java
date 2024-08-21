@@ -1,14 +1,12 @@
-package com.clinic.adapter.out.persistence;
+package com.clinic.db;
 
-import com.clinic.adapter.out.persistence.entity.DoctorEntity;
-import com.clinic.adapter.out.persistence.entity.Gender;
-import com.clinic.adapter.out.persistence.entity.PatientEntity;
+import com.clinic.db.entity.DoctorEntity;
+import com.clinic.db.entity.Gender;
+import com.clinic.db.entity.PatientEntity;
 import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
 import com.clinic.domain.Patient;
 import com.clinic.domain.Urgency;
-import com.clinic.port.in.ForFindingPatients;
-import com.clinic.port.out.ForStoringPatients;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class InMemoryPatientRepository implements ForStoringPatients, ForFindingPatients {
+public class InMemoryPatientRepository{
     private final Map<String, PatientEntity> patientStore = new HashMap<>();
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
@@ -38,14 +36,14 @@ public class InMemoryPatientRepository implements ForStoringPatients, ForFinding
         doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi", "F", true));
     }
 
-    @Override
+
     public void store(Patient patient) {
         DoctorEntity preferredDoctor = findPreferredDoctor(patient);
         PatientEntity entity = mapToEntity(patient, preferredDoctor);
         patientStore.put(entity.getId(), entity);
     }
 
-    @Override
+
     public Patient findById(String id) {
         PatientEntity entity = patientStore.get(id);
         DoctorPreference doctorPreference = findDoctorPreference(entity);

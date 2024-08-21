@@ -1,11 +1,11 @@
-package com.clinic.adapter.in;
+package com.clinic.controller;
 
-import com.clinic.adapter.in.dto.PatientDto;
-import com.clinic.adapter.out.persistence.entity.Gender;
+import com.clinic.controller.dto.PatientDto;
+import com.clinic.db.entity.Gender;
 import com.clinic.domain.*;
-import com.clinic.port.in.ForFindingPatients;
-import com.clinic.port.in.ForRegisteringPatient;
-import com.clinic.port.in.ForSelectingDoctor;
+import com.clinic.interfaces.ForFindingPatients;
+import com.clinic.interfaces.ForRegisteringPatient;
+import com.clinic.interfaces.ForSelectingDoctor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/patients")
 public class PatientController {
-    private final ForRegisteringPatient registerPatientService;
-    private final ForSelectingDoctor selectDoctorService;
-    private final ForFindingPatients findingPatients;
-
-    public PatientController(ForRegisteringPatient registerPatientService, ForSelectingDoctor selectDoctorService, ForFindingPatients findingPatients) {
-        this.registerPatientService = registerPatientService;
-        this.selectDoctorService = selectDoctorService;
-        this.findingPatients = findingPatients;
-    }
 
     @PostMapping
     public ResponseEntity<String> registerPatient(@RequestBody PatientDto patientDto) {
         try {
             Patient patient = toDomain(patientDto);
-            registerPatientService.registerPatient(patient);
+            // TODO: call the service to register the patient
             return ResponseEntity.status(HttpStatus.CREATED).body("Patient registered successfully.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -39,12 +30,8 @@ public class PatientController {
     @GetMapping("/{id}/doctor")
     public ResponseEntity<Doctor> getDoctorForPatient(@PathVariable("id") String id) {
         try {
-            Patient patient = findingPatients.findById(id);
-            if (patient == null) {
-                return ResponseEntity.notFound().build();
-            }
-            Doctor doctor = selectDoctorService.selectDoctorForPatient(patient);
-            return ResponseEntity.ok(doctor);
+           // TODO  call the service to get the doctor for the patient
+            return ResponseEntity.ok(null);
         } catch (IllegalArgumentException e) {
             log.error("Error selecting doctor for patient", e);
             return ResponseEntity.badRequest().body(null);

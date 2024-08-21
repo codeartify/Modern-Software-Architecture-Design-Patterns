@@ -1,19 +1,17 @@
-package com.clinic.adapter.out.persistence;
+package com.clinic.db;
 
-import com.clinic.adapter.out.persistence.entity.DoctorEntity;
-import com.clinic.adapter.out.persistence.entity.Gender;
+import com.clinic.db.entity.DoctorEntity;
+import com.clinic.db.entity.Gender;
 import com.clinic.domain.Doctor;
 import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
-import com.clinic.port.out.ForFindingDoctorByPreferences;
-import com.clinic.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, ForFindingFirstAvailableDoctor {
+public class InMemoryDoctorRepository  {
     private final List<DoctorEntity> doctorStore = new ArrayList<>();
 
     public InMemoryDoctorRepository() {
@@ -25,7 +23,7 @@ public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, 
         doctorStore.add(new DoctorEntity("6", "Dr. Gupta", "Pediatrics", "Hindi", "F", true));
     }
 
-    @Override
+
     public Doctor findDoctorByPreferences(DoctorPreference doctorPreference) {
         return doctorStore.stream()
                 .filter(doctor -> isPreferredDoctor(doctorPreference, doctor))
@@ -34,7 +32,7 @@ public class InMemoryDoctorRepository implements ForFindingDoctorByPreferences, 
                 .orElse(null);
     }
 
-    @Override
+
     public Doctor findFirstAvailableDoctor() {
         return doctorStore
                 .stream()

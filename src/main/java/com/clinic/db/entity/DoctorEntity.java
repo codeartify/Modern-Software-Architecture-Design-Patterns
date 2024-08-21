@@ -1,4 +1,4 @@
-package com.clinic.adapter.out.persistence.entity;
+package com.clinic.db.entity;
 
 import lombok.*;
 
