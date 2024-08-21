@@ -37,7 +37,7 @@ public class PatientController {
     }
 
     @GetMapping("/{id}/doctor")
-    public ResponseEntity<Doctor> getDoctorForPatient(@PathVariable String id) {
+    public ResponseEntity<Doctor> getDoctorForPatient(@PathVariable("id") String id) {
         try {
             Patient patient = findingPatients.findById(id);
             if (patient == null) {
@@ -54,7 +54,7 @@ public class PatientController {
         }
     }
 
-    public static Patient toDomain(PatientDto dto) {
+    private static Patient toDomain(PatientDto dto) {
         return new Patient(
                 dto.getId(),
                 dto.getName(),

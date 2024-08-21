@@ -1,44 +1,55 @@
 {
-	"info": {
-		"_postman_id": "774c8e53-f5b1-4644-963e-55c418c90edc",
-		"name": "Clinic Application",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2090339"
-	},
-	"item": [
-		{
-			"name": "registerPatient",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"id\": \"1\",\n  \"name\": \"John Doe\",\n  \"birthDate\": \"1990-01-01\",\n  \"gender\": \"M\",\n  \"privacyAgreement\": \"Agreed\",\n  \"preferredDoctorId\": \"1\",\n  \"specialization\": \"Cardiology\",\n  \"language\": \"English\",\n  \"urgency\": \"HIGH\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/patients",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"patients"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "getDoctorForPatient",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "774c8e53-f5b1-4644-963e-55c418c90edc",
+    "name": "Clinic Application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2090339"
+  },
+  "item": [
+    {
+      "name": "registerPatient",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"1\",\n  \"name\": \"John Doe\",\n  \"birthDate\": \"1990-01-01\",\n  \"gender\": \"M\",\n  \"privacyAgreement\": \"Agreed\",\n  \"preferredDoctorId\": \"1\",\n  \"specialization\": \"Cardiology\",\n  \"language\": \"English\",\n  \"urgency\": \"HIGH\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patients",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "patients"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getDoctorForPatient",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/patients/1/doctor",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "patients",
+            "1",
+            "doctor"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }
