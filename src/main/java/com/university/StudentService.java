@@ -1,14 +1,14 @@
-package com.university.service;
+package com.university;
 
 import com.university.domain.Course;
 import com.university.domain.Enrollment;
 import com.university.domain.Student;
-import com.university.dataaccess.entity.CourseEntity;
-import com.university.dataaccess.entity.EnrollmentEntity;
-import com.university.dataaccess.entity.StudentEntity;
-import com.university.dataaccess.repository.CourseRepository;
-import com.university.dataaccess.repository.EnrollmentRepository;
-import com.university.dataaccess.repository.StudentRepository;
+import com.university.db.entity.CourseEntity;
+import com.university.db.entity.EnrollmentEntity;
+import com.university.db.entity.StudentEntity;
+import com.university.db.CourseRepository;
+import com.university.db.EnrollmentRepository;
+import com.university.db.StudentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +26,15 @@ public class StudentService {
         this.studentRepository = studentRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
+    }
+
+    @Transactional
+    public void enrollInCourse(Long studentId, Long courseId) {
+        // TODO Implement this method
+        // A student cannot enroll in the same course more than twice.
+        //A student cannot enroll in an advanced course on a specific topic unless they have already completed the corresponding basic courses.
+        //Prevent double enrollment in the same course in the same semester.
+        //Only existing student can sign up to the existing course
     }
 
     public List<Student> findAll() {
@@ -48,27 +57,6 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
-    @Transactional
-    public void enrollInCourse(Long studentId, Long courseId) {
-        StudentEntity studentEntity = studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid student ID"));
-        Student student = mapToDomain(studentEntity);
-
-        CourseEntity courseEntity = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
-        Course course = mapToDomain(courseEntity);
-
-        if (student.getEnrollmentCountForCourse(courseId) >= 2) {
-            throw new IllegalStateException("Cannot enroll in the same course more than twice");
-        }
-
-        if (course.isAdvanced() && !student.hasCompletedBasicCourseInTopic(course.getTopic())) {
-            throw new IllegalStateException("Must complete basic courses in " + course.getTopic() + " before enrolling in an advanced course");
-        }
-
-        EnrollmentEntity enrollmentEntity = new EnrollmentEntity(studentEntity, courseEntity);
-        enrollmentRepository.save(enrollmentEntity);
-    }
 
     private Student mapToDomain(StudentEntity studentEntity) {
         List<Enrollment> enrollments = studentEntity.getEnrollments().stream()

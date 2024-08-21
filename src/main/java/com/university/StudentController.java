@@ -1,7 +1,6 @@
-package com.university.presentation;
+package com.university;
 
 import com.university.domain.Student;
-import com.university.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,9 +1,7 @@
-package com.university.dataaccess.repository;
+package com.university.db;
 
-import com.university.dataaccess.entity.EnrollmentEntity;
+import com.university.db.entity.EnrollmentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity, Long> {
 

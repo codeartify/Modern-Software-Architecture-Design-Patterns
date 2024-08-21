@@ -1,4 +1,4 @@
-package com.university.dataaccess.entity;
+package com.university.db.entity;
 
 import jakarta.persistence.*;
 

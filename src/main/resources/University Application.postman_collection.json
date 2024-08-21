@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "27a0b73f-a332-47bb-854e-8a5833b5ddc7",
+		"name": "University Application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2090339"
+	},
+	"item": [
+		{
+			"name": "getStudents",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/students",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"students"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getStudentById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/students/2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"students",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "enrollInCourse",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/students/enroll?studentId=1&courseId=2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"students",
+						"enroll"
+					],
+					"query": [
+						{
+							"key": "studentId",
+							"value": "1"
+						},
+						{
+							"key": "courseId",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
