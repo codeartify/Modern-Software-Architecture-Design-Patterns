@@ -39,15 +39,6 @@ public class StudentService {
         return studentRepository.findById(id).map(this::mapToDomain);
     }
 
-    @Transactional
-    public Student save(Student student) {
-        if (student.getName() == null || student.getName().isBlank()) {
-            throw new IllegalArgumentException("Student name cannot be null or blank");
-        }
-        StudentEntity studentEntity = mapToEntity(student);
-        StudentEntity savedEntity = studentRepository.save(studentEntity);
-        return mapToDomain(savedEntity);
-    }
 
     @Transactional
     public void deleteById(Long id) {

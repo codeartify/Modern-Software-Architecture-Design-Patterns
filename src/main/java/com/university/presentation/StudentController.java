@@ -26,25 +26,14 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+    public ResponseEntity<Student> getStudentById(@PathVariable("id") Long id) {
         return studentService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        Student savedStudent = studentService.save(student);
-        return ResponseEntity.ok(savedStudent);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/{studentId}/enroll/{courseId}")
-    public ResponseEntity<Void> enrollInCourse(@PathVariable Long studentId, @PathVariable Long courseId) {
+    public ResponseEntity<Void> enrollInCourse(@PathVariable("studentId") Long studentId, @PathVariable("courseId") Long courseId) {
         try {
             studentService.enrollInCourse(studentId, courseId);
             return ResponseEntity.ok().build();
