@@ -1,7 +1,6 @@
 package com.university.domain;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Student {
     private final Long id;

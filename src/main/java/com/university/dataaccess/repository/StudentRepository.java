@@ -8,15 +8,7 @@ import java.util.Optional;
 
 public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
 
-    // Find a student by name
-    Optional<StudentEntity> findByName(String name);
-
-    // Check if a student exists by name
-    boolean existsByName(String name);
-
-    // Check if a student exists by ID
     boolean existsById(Long id);
-
 
     Optional<StudentEntity> findById(Long id);
 

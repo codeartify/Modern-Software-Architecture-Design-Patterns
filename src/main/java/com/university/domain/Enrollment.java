@@ -2,12 +2,12 @@ package com.university.domain;
 
 public class Enrollment {
     private final Long id;
-    private final Student student;
+    private final Long studentId; // Use ID instead of Student object
     private final Course course;
 
-    public Enrollment(Long id, Student student, Course course) {
+    public Enrollment(Long id, Long studentId, Course course) {
         this.id = id;
-        this.student = student;
+        this.studentId = studentId;
         this.course = course;
     }
 
@@ -15,8 +15,8 @@ public class Enrollment {
         return id;
     }
 
-    public Student getStudent() {
-        return student;
+    public Long getStudentId() {
+        return studentId;
     }
 
     public Course getCourse() {

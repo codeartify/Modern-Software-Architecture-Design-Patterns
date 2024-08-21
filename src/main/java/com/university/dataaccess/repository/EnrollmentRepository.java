@@ -9,14 +9,4 @@ public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity, Lo
 
     // Check if there are any enrollments for a particular student
     boolean existsByStudentId(Long studentId);
-
-    // Find all enrollments for a particular student
-    List<EnrollmentEntity> findByStudentId(Long studentId);
-
-    // Find all enrollments for a particular course
-    List<EnrollmentEntity> findByCourseId(Long courseId);
-
-    // Count the number of times a student has enrolled in a specific course
-    long countByStudentIdAndCourseId(Long studentId, Long courseId);
-
 }

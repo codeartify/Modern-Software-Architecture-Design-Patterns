@@ -91,9 +91,7 @@ public class StudentService {
     }
 
     private Enrollment mapToDomain(EnrollmentEntity enrollmentEntity) {
-        return new Enrollment(enrollmentEntity.getId(),
-                mapToDomain(enrollmentEntity.getStudent()),
-                mapToDomain(enrollmentEntity.getCourse()));
+        return new Enrollment(enrollmentEntity.getId(), enrollmentEntity.getStudent().getId(), mapToDomain(enrollmentEntity.getCourse()));
     }
 
     private StudentEntity mapToEntity(Student student) {
@@ -102,9 +100,5 @@ public class StudentService {
 
     private CourseEntity mapToEntity(Course course) {
         return new CourseEntity(course.getTitle(), course.isAdvanced(), course.getTopic());
-    }
-
-    private EnrollmentEntity mapToEntity(Enrollment enrollment) {
-        return new EnrollmentEntity(mapToEntity(enrollment.getStudent()), mapToEntity(enrollment.getCourse()));
     }
 }

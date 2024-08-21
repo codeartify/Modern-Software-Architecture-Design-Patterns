@@ -1,6 +1,9 @@
 spring:
   application:
-    name: EventTicket
+      name: University Application
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
