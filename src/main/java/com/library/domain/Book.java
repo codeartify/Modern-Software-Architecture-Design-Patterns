@@ -1,16 +1,14 @@
 package com.library.domain;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
+
 public class Book {
-    private Long id;
+    private Long πid;
     private String title;
     private List<String> categories;
     private boolean borrowed = false;
 
-    // Constructors, Getters, and Setters
 
     public boolean isBorrowed() {
         return borrowed;
@@ -30,5 +28,19 @@ public class Book {
 
     public Long getId() {
         return id;
+    }
+
+    boolean hasSameCategories(Book borrowedBook) {
+        return borrowedBook.getCategories()
+                .stream()
+                .anyMatch(category -> getCategories().contains(category));
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 }

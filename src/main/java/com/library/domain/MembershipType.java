@@ -12,4 +12,6 @@ public enum MembershipType {
     public int getMaxBooksAllowed() {
         return maxBooksAllowed;
     }
+
+
 }

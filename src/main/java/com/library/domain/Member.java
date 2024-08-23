@@ -35,24 +35,49 @@ public class Member {
     }
 
     public List<String> getBookSuggestions(List<Book> allBooks) {
-        List<String> suggestions = new ArrayList<>();
-        for (Book book : allBooks) {
-            if (!book.isBorrowed() && borrowedBooks.stream()
-                    .anyMatch(borrowedBook -> borrowedBook.getCategories().stream()
-                            .anyMatch(category -> book.getCategories().contains(category)))) {
-                suggestions.add(book.getTitle());
-            }
-        }
-        return suggestions;
+        return allBooks.stream().filter(this::shouldSuggest).map(Book::getTitle).toList();
     }
 
-    public void setMembershipFeePaid(boolean membershopFeePaid) {
-        this.membershipFeePaid = membershopFeePaid;
+    private boolean shouldSuggest(Book book) {
+        return !book.isBorrowed() && haveSameCategoryAs(book);
+    }
+
+    private boolean haveSameCategoryAs(Book book) {
+        return borrowedBooks.stream().anyMatch(book::hasSameCategories);
+    }
+
+    public void setMembershipFeePaid(boolean memberShipFeePaid) {
+        this.membershipFeePaid = memberShipFeePaid;
     }
 
     public Long getId() {
         return id;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public boolean isMembershipFeePaid() {
+        return membershipFeePaid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public MembershipType getMembershipType() {
+        return membershipType;
+    }
+
+    public void setMembershipType(MembershipType membershipType) {
+        this.membershipType = membershipType;
+    }
+
 }
 
 
