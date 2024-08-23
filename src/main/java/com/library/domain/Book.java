@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public class Book {
-    private Long πid;
+    private Long id;
     private String title;
     private List<String> categories;
     private boolean borrowed = false;
