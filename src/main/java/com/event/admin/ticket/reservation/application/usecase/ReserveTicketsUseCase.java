@@ -1,12 +1,12 @@
 package com.event.admin.ticket.reservation.application.usecase;
 
-import com.event.admin.ticket.reservation.adapter.out.presenter.PresentBookTicketsFailure;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsFailure;
 import com.event.admin.ticket.reservation.application.exception.*;
 import com.event.admin.ticket.reservation.application.ports.in.ReserveTickets;
-import com.event.admin.ticket.reservation.application.ports.out.FindBooker;
-import com.event.admin.ticket.reservation.application.ports.out.FindEvent;
-import com.event.admin.ticket.reservation.application.ports.out.PresentBookTicketsSuccess;
-import com.event.admin.ticket.reservation.application.ports.out.UpdateEvent;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.FindBooker;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.FindEvent;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsSuccess;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.UpdateEvent;
 import com.event.admin.ticket.reservation.domain.Booker;
 import com.event.admin.ticket.reservation.domain.Event2;
 import com.event.admin.ticket.reservation.domain.TicketsLeft;

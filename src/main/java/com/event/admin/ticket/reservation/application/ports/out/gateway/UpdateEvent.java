@@ -1,4 +1,4 @@
-package com.event.admin.ticket.reservation.application.ports.out;
+package com.event.admin.ticket.reservation.application.ports.out.gateway;
 
 import com.event.admin.ticket.reservation.domain.Event2;
 

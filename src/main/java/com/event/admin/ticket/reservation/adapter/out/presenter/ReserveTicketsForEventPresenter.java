@@ -1,11 +1,13 @@
 package com.event.admin.ticket.reservation.adapter.out.presenter;
 
 import com.event.admin.ticket.reservation.adapter.in.ReserveTicketsResponse;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsFailure;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsSuccess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
-public class ReserveTicketsForEventPresenter implements com.event.admin.ticket.reservation.application.ports.out.PresentBookTicketsSuccess, PresentBookTicketsFailure {
+public class ReserveTicketsForEventPresenter implements PresentBookTicketsSuccess, PresentBookTicketsFailure {
     private ReserveTicketsResponse body;
     private Exception error;
 

@@ -1,7 +1,7 @@
 package com.event.admin.ticket.reservation.adapter.out.gateway;
 
-import com.event.admin.ticket.reservation.application.ports.out.FindEvent;
-import com.event.admin.ticket.reservation.application.ports.out.UpdateEvent;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.FindEvent;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.UpdateEvent;
 import com.event.admin.ticket.reservation.domain.Event2;
 import com.event.admin.ticket.reservation.domain.Ticket2;
 import com.event.admin.ticket.reservation.domain.TicketsLeft;

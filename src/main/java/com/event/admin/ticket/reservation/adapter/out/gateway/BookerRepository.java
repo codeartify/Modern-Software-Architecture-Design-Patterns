@@ -1,6 +1,6 @@
 package com.event.admin.ticket.reservation.adapter.out.gateway;
 
-import com.event.admin.ticket.reservation.application.ports.out.FindBooker;
+import com.event.admin.ticket.reservation.application.ports.out.gateway.FindBooker;
 import com.event.admin.ticket.reservation.domain.Booker;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

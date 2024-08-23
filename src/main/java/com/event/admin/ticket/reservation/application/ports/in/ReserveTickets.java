@@ -1,7 +1,7 @@
 package com.event.admin.ticket.reservation.application.ports.in;
 
-import com.event.admin.ticket.reservation.adapter.out.presenter.PresentBookTicketsFailure;
-import com.event.admin.ticket.reservation.application.ports.out.PresentBookTicketsSuccess;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsFailure;
+import com.event.admin.ticket.reservation.application.ports.out.presenter.PresentBookTicketsSuccess;
 
 public interface ReserveTickets {
     void execute(
