@@ -14,7 +14,7 @@ import java.util.UUID;
 public class PaymentFactory {
     public JdbcTemplate jdbcTemplate;
 
-    private PaymentFactory(JdbcTemplate jdbcTemplate) {
+    protected PaymentFactory(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
