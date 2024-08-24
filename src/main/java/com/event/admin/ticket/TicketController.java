@@ -78,30 +78,6 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
-    @PostMapping("/events/{id}/tickets")
-    @Transactional
-    public ResponseEntity<ReserveTicketsResponse> reserveTicketsForEvent(
-            @PathVariable("id") @NotNull Long eventId,
-            @Valid @RequestBody ReserveTicketsRequest reserveTicketsRequest) {
-        log.info("Reserving tickets for event with ID: {}", eventId);
-        log.info("Reserve tickets request: {}", reserveTicketsRequest);
-
-        // Check if booker exists - if not return 404
-        // Check if event exists - if not return 404
-        // Check if there are tickets left for the event - if not return 204 (no content)
-        // Check if the number of requested tickets is less or equal to the number of tickets that can be bought by one person - if not return 400 (bad request)
-        // Check if the number of requested tickets for a given ticket type (Standard or VIP) is less or equal to the number of available tickets - if not, add a warning to the response
-        // Get tickets for event and reduce the number of requested tickets from the available tickets - if not return 500 (internal server error)
-        // Return a response with the number of reserved tickets, the event id, and the requester name
-
-        var body = new ReserveTicketsResponse(
-                eventId,
-                reserveTicketsRequest.getNumberOfTickets(),
-                reserveTicketsRequest.getBookerUsername());
-
-        return ResponseEntity.ok(body);
-    }
-
     // Endpoint to process a payment
     @PostMapping("/tickets/payment")
     @Transactional
