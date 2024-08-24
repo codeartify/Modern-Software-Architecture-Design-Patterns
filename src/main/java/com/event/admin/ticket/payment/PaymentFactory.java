@@ -1,29 +1,29 @@
 package com.event.admin.ticket.payment;
 
-import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.model.DiscountCode;
+import com.event.admin.ticket.model.PaymentRequest;
+import com.event.admin.ticket.model.Ticket;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class PaymentFactory {
+public class PaymentFactory {
     protected JdbcTemplate jdbcTemplate;
 
     protected PaymentFactory(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static PaymentFactory createPaymentFactory(JdbcTemplate jdbcTemplate, String paymentType) {
+    public static PaymentUseCase createPaymentFactory(JdbcTemplate jdbcTemplate, String paymentType) {
         if ("credit_card".equalsIgnoreCase(paymentType)) {
-            return new CreditCardPaymentFactory(jdbcTemplate);
+            return new PayByCreditCardUseCase(jdbcTemplate);
         } else if ("bill".equalsIgnoreCase(paymentType)) {
-            return new BillPaymentFactory(jdbcTemplate);
+            return new PayByBillUseCase(jdbcTemplate);
         } else {
             throw new IllegalArgumentException("Invalid payment type.");
         }
     }
 
-
-    public abstract Payment createPayment(PaymentRequest paymentRequest);
 
     protected double calculateTotalAmount(PaymentRequest paymentRequest) {
         double totalAmount = 0;
