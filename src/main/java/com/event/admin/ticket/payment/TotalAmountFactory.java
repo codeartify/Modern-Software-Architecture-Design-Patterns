@@ -64,4 +64,9 @@ public class TotalAmountFactory {
         totalAmount += result;
         return totalAmount;
     }
+
+    double getTotalAmountWithFee(PaymentRequest paymentRequest) {
+        double totalAmountWithVAT = calculateTotalAmount(paymentRequest) * 1.20;
+        return totalAmountWithVAT * 1.03;
+    }
 }

@@ -1,6 +1,8 @@
 package com.event.admin.ticket.payment;
 
 import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.payment.domain.BuyerCompanyName;
+import com.event.admin.ticket.payment.domain.Iban;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -19,30 +21,20 @@ public class PayByBillUseCase implements PaymentUseCase {
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
-        var totalAmount = totalAmountFactory.calculateTotalAmount(paymentRequest);
         Payment payment = new Payment();
-        payment.setAmount(totalAmount);
+        payment.setAmount(totalAmountFactory.calculateTotalAmount(paymentRequest));
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
-        if (paymentRequest.getBuyerCompanyName() == null || paymentRequest.getBuyerCompanyName().isEmpty()) {
-            throw new IllegalArgumentException("Buyer company name must be provided.");
-        }
-        if (paymentRequest.getBuyerName() == null || paymentRequest.getBuyerName().isEmpty()) {
-            throw new IllegalArgumentException("Buyer name must be provided.");
-        }
-        if (paymentRequest.getIban() == null || paymentRequest.getIban().isEmpty()) {
-            throw new IllegalArgumentException("IBAN must be provided.");
-        }
 
-        double totalAmountWithVAT = totalAmount * 1.20;
-        double totalAmountWithFee = totalAmountWithVAT * 1.03;
+        var buyerCompanyName = new BuyerCompanyName(paymentRequest.getBuyerCompanyName());
+        var buyerName = new BuyerName(paymentRequest.getBuyerName());
 
         Bill bill = new Bill();
-        bill.setBuyerCompanyName(paymentRequest.getBuyerCompanyName());
-        bill.setBuyerName(paymentRequest.getBuyerName());
-        bill.setAmount(totalAmountWithFee);
-        bill.setIban(paymentRequest.getIban());
+        bill.setBuyerCompanyName(buyerCompanyName.value());
+        bill.setBuyerName(buyerName.value());
+        bill.setAmount(totalAmountFactory.getTotalAmountWithFee(paymentRequest));
+        bill.setIban(new Iban(paymentRequest.getIban()).value());
         bill.setDescription(paymentRequest.getBillDescription());
         bill.setOrganizerCompanyName(organizerCompanyName);
         bill.setCreationDate(LocalDate.now());
@@ -50,7 +42,7 @@ public class PayByBillUseCase implements PaymentUseCase {
 
         // Send notification to the buyer
         Notification buyerNotification = new Notification();
-        buyerNotification.setRecipient(paymentRequest.getBuyerName());
+        buyerNotification.setRecipient(buyerName.value());
         buyerNotification.setSubject("New Bill Issued");
         buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription());
         String query = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
@@ -82,4 +74,5 @@ public class PayByBillUseCase implements PaymentUseCase {
         payment.setSuccessful(true);
         return payment;
     }
+
 }
