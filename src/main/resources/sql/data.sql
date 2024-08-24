@@ -32,7 +32,7 @@ VALUES (1, 1, '2022-02-15', 'Leaking faucet in the bathroom', 'Completed', '2022
        (3, 3, '2022-08-05', 'Door lock jammed', 'Completed', '2022-08-07'),
        (1, 1, '2022-09-12', 'Broken light fixture in the hallway', 'Pending', NULL),
        (2, 2, '2022-10-18', 'Pest infestation in the basement', 'Completed', '2022-10-20'),
-       (3, 3, π'2022-11-23', 'Water heater malfunction', 'In Progress', NULL),
+       (3, 3, '2022-11-23', 'Water heater malfunction', 'In Progress', NULL),
        (3, 3, '2023-01-14', 'Mold in the bathroom', 'Pending', NULL),
        (1, 1, '2023-02-03', 'Cracked window in the living room', 'In Progress', NULL),
        (2, 2, '2023-03-08', 'Garage door not opening', 'Pending', NULL);
