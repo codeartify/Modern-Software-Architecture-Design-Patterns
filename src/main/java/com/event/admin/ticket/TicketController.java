@@ -2,7 +2,6 @@ package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,7 +9,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,6 +86,32 @@ public class TicketController {
     public ResponseEntity<Payment> processPayment(@Valid @RequestBody PaymentRequest paymentRequest) {
         log.info("Processing payment...");
         log.info("Payment request: {}", paymentRequest);
+
+        Payment payment = createPayment(paymentRequest);
+        updatePayment(payment);
+
+        return ResponseEntity.ok(payment);
+
+    }
+
+    private Payment createPayment(PaymentRequest paymentRequest) {
+        Payment payment;
+        if ("credit_card".equalsIgnoreCase(paymentRequest.getPaymentType())) {
+            payment = createCreditCardPayment(paymentRequest);
+        } else if ("bill".equalsIgnoreCase(paymentRequest.getPaymentType())) {
+            payment = createBillPayment(paymentRequest);
+        } else {
+            throw new IllegalArgumentException("Invalid payment type.");
+        }
+        return payment;
+    }
+
+    private void updatePayment(Payment payment) {
+        String query = "INSERT INTO payment (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(query, payment.getAmount(), payment.getPaymentMethod(), payment.getDescription(), payment.isSuccessful());
+    }
+
+    private double calculateTotalAmount(PaymentRequest paymentRequest) {
         double totalAmount = 0;
         double discountTotal = 0;
 
@@ -131,113 +159,117 @@ public class TicketController {
             result = 0.99;
         }
         totalAmount += result;
+        return totalAmount;
+    }
 
+    private Payment createBillPayment(PaymentRequest paymentRequest) {
         Payment payment = new Payment();
+        var totalAmount = calculateTotalAmount(paymentRequest);
         payment.setAmount(totalAmount);
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
-        if ("credit_card".equalsIgnoreCase(paymentRequest.getPaymentType())) {
-            payment.setDescription("Payment for tickets via credit card");
-            payment.setSuccessful(true);
+        if (paymentRequest.getBuyerCompanyName() == null || paymentRequest.getBuyerCompanyName().isEmpty()) {
+            throw new IllegalArgumentException("Buyer company name must be provided.");
+        }
+        if (paymentRequest.getBuyerName() == null || paymentRequest.getBuyerName().isEmpty()) {
+            throw new IllegalArgumentException("Buyer name must be provided.");
+        }
+        if (paymentRequest.getIban() == null || paymentRequest.getIban().isEmpty()) {
+            throw new IllegalArgumentException("IBAN must be provided.");
+        }
 
-            for (Ticket ticket : paymentRequest.getTickets()) {
-                String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
-                ticket.setQrCode(qrCodeUrl);
+        double totalAmountWithVAT = totalAmount * 1.20;
+        double totalAmountWithFee = totalAmountWithVAT * 1.03;
 
-                String query = "UPDATE ticket SET qr_code = ? WHERE id = ?";
-                jdbcTemplate.update(query, qrCodeUrl, ticket.getId());
+        Bill bill = new Bill();
+        bill.setBuyerCompanyName(paymentRequest.getBuyerCompanyName());
+        bill.setBuyerName(paymentRequest.getBuyerName());
+        bill.setAmount(totalAmountWithFee);
+        bill.setIban(paymentRequest.getIban());
+        bill.setDescription(paymentRequest.getBillDescription());
+        bill.setOrganizerCompanyName(organizerCompanyName);
+        bill.setCreationDate(LocalDate.now());
+        bill.setPaid(false);
 
-                // Send notification to the buyer
-                Notification buyerNotification = new Notification();
-                buyerNotification.setRecipient(paymentRequest.getBuyerName());
-                buyerNotification.setSubject("Payment Successful");
-                buyerNotification.setMessage("Your payment was successful. Here is your ticket:\n" + "Event: " + ticket.getEvent().getName() + "\n" + "Ticket Type: " + ticket.getType() + "\n" + "QR Code: " + qrCodeUrl);
-                String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-                jdbcTemplate.update(query1, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
+        // Send notification to the buyer
+        Notification buyerNotification = new Notification();
+        buyerNotification.setRecipient(paymentRequest.getBuyerName());
+        buyerNotification.setSubject("New Bill Issued");
+        buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription());
+        String query = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
+        jdbcTemplate.update(query, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
+
+        // Notify the organizer
+        String query2 = "SELECT * FROM organizer WHERE company_name = ?";
+        Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{organizerCompanyName}, new RowMapper<Organizer>() {
+            @Override
+            public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Organizer organizer = new Organizer();
+                organizer.setId(rs.getLong("id"));
+                organizer.setCompanyName(rs.getString("company_name"));
+                organizer.setContactName(rs.getString("contact_name"));
+                return organizer;
             }
+        });
 
-            String query = "SELECT * FROM organizer WHERE company_name = ?";
-            Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{organizerCompanyName}, (rs, _) -> {
-                Organizer organizer1 = new Organizer();
-                organizer1.setId(rs.getLong("id"));
-                organizer1.setCompanyName(rs.getString("company_name"));
-                organizer1.setContactName(rs.getString("contact_name"));
-                return organizer1;
-            });
+        if (organizer != null) {
+            Notification organizerNotification = new Notification();
+            organizerNotification.setRecipient(organizer.getContactName());
+            organizerNotification.setSubject("New Ticket Sale");
+            organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
+            String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
+            jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
+        }
 
-            if (organizer != null) {
-                Notification organizerNotification = new Notification();
-                organizerNotification.setRecipient(organizer.getContactName());
-                organizerNotification.setSubject("New Ticket Sale");
-                organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
-                String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-                jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
-            }
-        } else if ("bill".equalsIgnoreCase(paymentRequest.getPaymentType())) {
-            if (paymentRequest.getBuyerCompanyName() == null || paymentRequest.getBuyerCompanyName().isEmpty()) {
-                throw new IllegalArgumentException("Buyer company name must be provided.");
-            }
-            if (paymentRequest.getBuyerName() == null || paymentRequest.getBuyerName().isEmpty()) {
-                throw new IllegalArgumentException("Buyer name must be provided.");
-            }
-            if (paymentRequest.getIban() == null || paymentRequest.getIban().isEmpty()) {
-                throw new IllegalArgumentException("IBAN must be provided.");
-            }
+        payment.setDescription("Bill payment for tickets");
+        payment.setSuccessful(true);
+        return payment;
+    }
 
-            double totalAmountWithVAT = totalAmount * 1.20;
-            double totalAmountWithFee = totalAmountWithVAT * 1.03;
+    private Payment createCreditCardPayment(PaymentRequest paymentRequest) {
+        Payment payment;
+        payment = new Payment();
+        payment.setAmount(calculateTotalAmount(paymentRequest));
+        payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
-            Bill bill = new Bill();
-            bill.setBuyerCompanyName(paymentRequest.getBuyerCompanyName());
-            bill.setBuyerName(paymentRequest.getBuyerName());
-            bill.setAmount(totalAmountWithFee);
-            bill.setIban(paymentRequest.getIban());
-            bill.setDescription(paymentRequest.getBillDescription());
-            bill.setOrganizerCompanyName(organizerCompanyName);
-            bill.setCreationDate(LocalDate.now());
-            bill.setPaid(false);
+        var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
+        payment.setDescription("Payment for tickets via credit card");
+        payment.setSuccessful(true);
+
+        for (Ticket ticket : paymentRequest.getTickets()) {
+            String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
+            ticket.setQrCode(qrCodeUrl);
+
+            String query = "UPDATE ticket SET qr_code = ? WHERE id = ?";
+            jdbcTemplate.update(query, qrCodeUrl, ticket.getId());
 
             // Send notification to the buyer
             Notification buyerNotification = new Notification();
             buyerNotification.setRecipient(paymentRequest.getBuyerName());
-            buyerNotification.setSubject("New Bill Issued");
-            buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription());
-            String query = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-            jdbcTemplate.update(query, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
-
-            // Notify the organizer
-            String query2 = "SELECT * FROM organizer WHERE company_name = ?";
-            Organizer organizer = jdbcTemplate.queryForObject(query2, new Object[]{organizerCompanyName}, new RowMapper<Organizer>() {
-                @Override
-                public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    Organizer organizer = new Organizer();
-                    organizer.setId(rs.getLong("id"));
-                    organizer.setCompanyName(rs.getString("company_name"));
-                    organizer.setContactName(rs.getString("contact_name"));
-                    return organizer;
-                }
-            });
-
-            if (organizer != null) {
-                Notification organizerNotification = new Notification();
-                organizerNotification.setRecipient(organizer.getContactName());
-                organizerNotification.setSubject("New Ticket Sale");
-                organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
-                String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-                jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
-            }
-
-            payment.setDescription("Bill payment for tickets");
-            payment.setSuccessful(true);
-        } else {
-            throw new IllegalArgumentException("Invalid payment type.");
+            buyerNotification.setSubject("Payment Successful");
+            buyerNotification.setMessage("Your payment was successful. Here is your ticket:\n" + "Event: " + ticket.getEvent().getName() + "\n" + "Ticket Type: " + ticket.getType() + "\n" + "QR Code: " + qrCodeUrl);
+            String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
+            jdbcTemplate.update(query1, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
         }
 
-        String query = "INSERT INTO payment (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(query, payment.getAmount(), payment.getPaymentMethod(), payment.getDescription(), payment.isSuccessful());
+        String query = "SELECT * FROM organizer WHERE company_name = ?";
+        Organizer organizer = jdbcTemplate.queryForObject(query, new Object[]{organizerCompanyName}, (rs, _) -> {
+            Organizer organizer1 = new Organizer();
+            organizer1.setId(rs.getLong("id"));
+            organizer1.setCompanyName(rs.getString("company_name"));
+            organizer1.setContactName(rs.getString("contact_name"));
+            return organizer1;
+        });
 
-        return ResponseEntity.ok(payment);
-
+        if (organizer != null) {
+            Notification organizerNotification = new Notification();
+            organizerNotification.setRecipient(organizer.getContactName());
+            organizerNotification.setSubject("New Ticket Sale");
+            organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
+            String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
+            jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
+        }
+        return payment;
     }
 }
