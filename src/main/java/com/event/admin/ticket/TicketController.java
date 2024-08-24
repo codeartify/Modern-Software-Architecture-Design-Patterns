@@ -3,7 +3,6 @@ package com.event.admin.ticket;
 import com.event.admin.ticket.model.*;
 import com.event.admin.ticket.payment.PaymentFactory;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,12 +21,15 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/api")
-@AllArgsConstructor
-public class TicketController {
+ public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
     private final PaymentFactory paymentFactory;
 
+    public TicketController(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.paymentFactory = PaymentFactory.createPaymentFactory(jdbcTemplate);
+    }
 
 
     // Endpoint to create a new event
