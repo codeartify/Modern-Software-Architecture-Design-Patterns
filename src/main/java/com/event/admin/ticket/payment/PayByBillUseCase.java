@@ -12,16 +12,15 @@ public class PayByBillUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
     private final TotalAmountFactory totalAmountFactory;
 
-    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory1) {
+    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory) {
         this.jdbcTemplate = jdbcTemplate;
-        totalAmountFactory = totalAmountFactory1;
+        this.totalAmountFactory = totalAmountFactory;
     }
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
-
-        Payment payment = new Payment();
         var totalAmount = totalAmountFactory.calculateTotalAmount(paymentRequest);
+        Payment payment = new Payment();
         payment.setAmount(totalAmount);
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 

@@ -16,8 +16,7 @@ public class PayByCreditCardUseCase implements PaymentUseCase {
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
-        Payment payment;
-        payment = new Payment();
+        Payment payment = new Payment();
         payment.setAmount(this.totalAmountFactory.calculateTotalAmount(paymentRequest));
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
