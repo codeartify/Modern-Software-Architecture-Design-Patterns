@@ -10,16 +10,18 @@ import java.time.LocalDate;
 
 public class PayByBillUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
+    private final TotalAmountFactory totalAmountFactory;
 
-    public PayByBillUseCase(JdbcTemplate jdbcTemplate) {
+    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory1) {
         this.jdbcTemplate = jdbcTemplate;
+        totalAmountFactory = totalAmountFactory1;
     }
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
 
         Payment payment = new Payment();
-        var totalAmount = new PaymentFactory(jdbcTemplate).calculateTotalAmount(paymentRequest);
+        var totalAmount = totalAmountFactory.calculateTotalAmount(paymentRequest);
         payment.setAmount(totalAmount);
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 

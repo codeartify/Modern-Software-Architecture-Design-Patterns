@@ -7,16 +7,18 @@ import java.util.UUID;
 
 public class PayByCreditCardUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
+    private final TotalAmountFactory totalAmountFactory;
 
-    public PayByCreditCardUseCase(JdbcTemplate jdbcTemplate) {
+    public PayByCreditCardUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory) {
         this.jdbcTemplate = jdbcTemplate;
+        this.totalAmountFactory = totalAmountFactory;
     }
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
         Payment payment;
         payment = new Payment();
-        payment.setAmount(new PaymentFactory(jdbcTemplate).calculateTotalAmount(paymentRequest));
+        payment.setAmount(this.totalAmountFactory.calculateTotalAmount(paymentRequest));
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
