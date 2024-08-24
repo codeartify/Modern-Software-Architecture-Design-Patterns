@@ -1,7 +1,6 @@
 package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
-import com.event.admin.ticket.payment.PaymentUseCaseFactory;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -76,27 +75,5 @@ import java.util.Objects;
         return ResponseEntity.ok(tickets);
     }
 
-    // Endpoint to process a payment
-    @PostMapping("/tickets/payment")
-    @Transactional
-    public ResponseEntity<Payment> processPayment(@Valid @RequestBody PaymentRequest paymentRequest) {
-        log.info("Processing payment...");
-        log.info("Payment request: {}", paymentRequest);
-
-
-        var paymentFactory = PaymentUseCaseFactory.createPaymentUseCase(jdbcTemplate, paymentRequest.getPaymentType());
-
-        Payment payment = paymentFactory.createPayment(paymentRequest);
-
-        updatePayment(payment);
-
-        return ResponseEntity.ok(payment);
-
-    }
-
-    private void updatePayment(Payment payment) {
-        String query = "INSERT INTO payment (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(query, payment.getAmount(), payment.getPaymentMethod(), payment.getDescription(), payment.isSuccessful());
-    }
 
 }

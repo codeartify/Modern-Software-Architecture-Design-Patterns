@@ -1,6 +1,7 @@
 package com.event.admin.ticket.payment;
 
 import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.payment.domain.BuyerName;
 import com.event.admin.ticket.payment.domain.BuyerCompanyName;
 import com.event.admin.ticket.payment.domain.Iban;
 import org.springframework.jdbc.core.JdbcTemplate;

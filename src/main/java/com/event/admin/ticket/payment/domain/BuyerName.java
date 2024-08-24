@@ -1,4 +1,4 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.domain;
 
 public record BuyerName(String value) {
 
