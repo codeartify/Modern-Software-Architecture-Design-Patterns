@@ -24,11 +24,9 @@ import java.util.Objects;
  public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
-    private final PaymentFactory paymentFactory;
 
     public TicketController(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.paymentFactory = PaymentFactory.createPaymentFactory(jdbcTemplate);
     }
 
 
@@ -85,6 +83,8 @@ import java.util.Objects;
         log.info("Processing payment...");
         log.info("Payment request: {}", paymentRequest);
 
+
+        var paymentFactory = PaymentFactory.createPaymentFactory(jdbcTemplate, paymentRequest.getPaymentType());
 
         Payment payment = paymentFactory.createPayment(paymentRequest);
 

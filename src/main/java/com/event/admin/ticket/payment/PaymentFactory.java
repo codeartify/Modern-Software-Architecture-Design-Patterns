@@ -18,8 +18,14 @@ public class PaymentFactory {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static PaymentFactory createPaymentFactory(JdbcTemplate jdbcTemplate) {
-        return new PaymentFactory(jdbcTemplate);
+    public static PaymentFactory createPaymentFactory(JdbcTemplate jdbcTemplate, String paymentType) {
+        if ("credit_card".equalsIgnoreCase(paymentType)) {
+            return new CreditCardPaymentFactory(jdbcTemplate);
+        } else if ("bill".equalsIgnoreCase(paymentType)) {
+            return new BillPaymentFactory(jdbcTemplate);
+        } else {
+            throw new IllegalArgumentException("Invalid payment type.");
+        }
     }
 
 
