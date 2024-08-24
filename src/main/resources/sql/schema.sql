@@ -1,72 +1,67 @@
-CREATE TABLE IF NOT EXISTS event
+-- Creating the Properties table
+CREATE TABLE IF NOT EXISTS Properties
 (
-    id   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    tickets_per_booker INT
+    property_id    INT AUTO_INCREMENT PRIMARY KEY,
+    address        VARCHAR(255) NOT NULL,
+    city           VARCHAR(100) NOT NULL,
+    state          VARCHAR(50)  NOT NULL,
+    postal_code    VARCHAR(20),
+    property_type  VARCHAR(50), -- e.g., Apartment, House, Condo
+    num_units      INT,         -- Number of units in the property
+    owner_name     VARCHAR(100),
+    purchase_date  DATE,
+    purchase_price DECIMAL(15, 2)
 );
 
-CREATE TABLE IF NOT EXISTS ticket
+-- Creating the Tenants table
+CREATE TABLE IF NOT EXISTS Tenants
 (
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    price     DECIMAL(15, 2),
-    type      VARCHAR(255),
-    qr_code   VARCHAR(255),
-    booker_id BIGINT,
-    is_paid BOOLEAN,
-    event_id  BIGINT,
-    CONSTRAINT fk_event
-        FOREIGN KEY (event_id)
-            REFERENCES event(id)
+    tenant_id     INT AUTO_INCREMENT PRIMARY KEY,
+    first_name    VARCHAR(100) NOT NULL,
+    last_name     VARCHAR(100) NOT NULL,
+    phone_number  VARCHAR(20),
+    email         VARCHAR(100),
+    date_of_birth DATE
 );
 
-CREATE TABLE IF NOT EXISTS bill
+-- Creating the Rentals table
+CREATE TABLE IF NOT EXISTS Rentals
 (
-    id                     BIGINT AUTO_INCREMENT PRIMARY KEY,
-    buyer_company_name     VARCHAR(255),
-    buyer_name             VARCHAR(255),
-    amount                 DECIMAL(15, 2),
-    iban                   VARCHAR(255),
-    description            VARCHAR(255),
-    organizer_company_name VARCHAR(255),
-    creation_date          DATE,
-    paid                   BOOLEAN
+    rental_id        INT AUTO_INCREMENT PRIMARY KEY,
+    property_id      INT,
+    tenant_id        INT,
+    unit_number      VARCHAR(50),
+    lease_start_date DATE,
+    lease_end_date   DATE,
+    monthly_rent     DECIMAL(10, 2),
+    deposit_amount   DECIMAL(10, 2),
+    lease_agreement  VARCHAR(255), -- Path to the lease agreement document
+    FOREIGN KEY (property_id) REFERENCES Properties (property_id),
+    FOREIGN KEY (tenant_id) REFERENCES Tenants (tenant_id)
 );
 
-CREATE TABLE IF NOT EXISTS discount_code
+-- Creating the Payments table
+CREATE TABLE IF NOT EXISTS Payments
 (
-    id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
-    code                  VARCHAR(255),
-    discount_percentage   DECIMAL(15, 2),
-    applicable_ticket_type VARCHAR(255)
+    payment_id     INT AUTO_INCREMENT PRIMARY KEY,
+    rental_id      INT,
+    payment_date   DATE,
+    amount         DECIMAL(10, 2),
+    payment_method VARCHAR(50), -- e.g., Credit Card, Bank Transfer, Cash
+    payment_status VARCHAR(50), -- e.g., Paid, Pending, Overdue
+    FOREIGN KEY (rental_id) REFERENCES Rentals (rental_id)
 );
 
-CREATE TABLE IF NOT EXISTS notification
+-- Creating the MaintenanceRequests table
+CREATE TABLE IF NOT EXISTS Maintenance_Requests
 (
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    recipient  VARCHAR(255),
-    subject    VARCHAR(255),
-    message    VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS organizer
-(
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    company_name  VARCHAR(255),
-    contact_name  VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS payment
-(
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    amount         DECIMAL(15, 2),
-    payment_method VARCHAR(255),
-    description    VARCHAR(255),
-    successful     BOOLEAN
-);
-
-CREATE TABLE IF NOT EXISTS booker (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255),
-    email VARCHAR(255),
-    company_name VARCHAR(255)
+    request_id      INT AUTO_INCREMENT PRIMARY KEY,
+    property_id     INT,
+    tenant_id       INT,
+    request_date    DATE,
+    description     TEXT,
+    status          VARCHAR(50), -- e.g., Pending, In Progress, Completed
+    resolution_date DATE,
+    FOREIGN KEY (property_id) REFERENCES Properties (property_id),
+    FOREIGN KEY (tenant_id) REFERENCES Tenants (tenant_id)
 );
