@@ -3,7 +3,9 @@ package com.event.admin.ticket.reservingTickets.adapter.out.presenter;
 import com.event.admin.ticket.reservingTickets.adapter.in.ReserveTicketsResponse;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.presenter.PresentBookTicketsFailure;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.presenter.PresentBookTicketsSuccess;
+import com.event.admin.ticket.reservingTickets.domain.BookerUsername;
 import com.event.admin.ticket.reservingTickets.domain.EventId;
+import com.event.admin.ticket.reservingTickets.domain.NumberOfTickets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
@@ -13,11 +15,11 @@ public class ReserveTicketsForEventPresenter implements PresentBookTicketsSucces
     private Exception error;
 
     @Override
-    public void present(EventId eventId, int numberOfTickets, String bookerUsername) {
+    public void present(EventId eventId, NumberOfTickets numberOfTickets, BookerUsername bookerUsername) {
         this.body = new ReserveTicketsResponse(
                 eventId.value(),
-                numberOfTickets,
-                bookerUsername);
+                numberOfTickets.value(),
+                bookerUsername.value());
     }
 
     @Override

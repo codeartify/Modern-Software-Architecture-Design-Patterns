@@ -7,35 +7,34 @@ import java.util.List;
 
 public record TicketsLeft(List<ReservableTicket> ticketsLeft) {
 
-    public void markTicketsAsReserved(int numberOfTickets, String ticketType, Booker booker) {
+    public void markTicketsAsReserved(Booker booker, TicketType ticketType, NumberOfTickets numberOfRequestedTickets) {
         if (noTicketsLeft()) {
             throw new AllTicketsSoldException("No tickets left for the event");
         }
 
-        if (notEnoughTicketsOfTypeLeft(numberOfTickets, ticketType)) {
-            throw new TooFewTicketsOfTypeLeftException("Not enough tickets of type " + ticketType + " left for the event");
+        if (notEnoughTicketsOfTypeLeft(numberOfRequestedTickets, ticketType)) {
+            throw new TooFewTicketsOfTypeLeftException("Not enough tickets of type " + ticketType.name() + " left for the event");
         }
+
         for (ReservableTicket ticket : ticketsLeft) {
-            if (ticket.isOfType(TicketType.getValueOf(ticketType))) {
-                ticket.bookedBy(new BookerId(booker.id()));
+            if (ticket.isOfType(ticketType)) {
+                ticket.bookedBy(booker.id());
+                numberOfRequestedTickets.decrement();
             }
-            if (ticket.isOfType(TicketType.getValueOf(ticketType))) {
-                numberOfTickets--;
-            }
-            if (numberOfTickets == 0) {
+            if (numberOfRequestedTickets.isZero()) {
                 break;
             }
         }
     }
 
-    private boolean notEnoughTicketsOfTypeLeft(int numberOfTickets, String ticketType) {
-        return numberOfTickets > numberOfTicketsLeftForType(ticketType);
+    private boolean notEnoughTicketsOfTypeLeft(NumberOfTickets requestedNumberOfTickets, TicketType ticketType) {
+        return requestedNumberOfTickets.value() > numberOfTicketsLeftForType(ticketType);
     }
 
-    private long numberOfTicketsLeftForType(String ticketType) {
+    private long numberOfTicketsLeftForType(TicketType ticketType) {
         return ticketsLeft()
                 .stream()
-                .filter(ticket -> ticket.isOfType(TicketType.getValueOf(ticketType)) && ticket.canBeReserved())
+                .filter(ticket -> ticket.isRequestedTicket(ticketType))
                 .count();
     }
 

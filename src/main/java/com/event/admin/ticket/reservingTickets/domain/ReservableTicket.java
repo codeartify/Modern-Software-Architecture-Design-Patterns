@@ -1,10 +1,13 @@
 package com.event.admin.ticket.reservingTickets.domain;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
+@EqualsAndHashCode
 public final class ReservableTicket {
-
     private BookerId bookerId;
     private final TicketType ticketType;
 
@@ -29,11 +32,7 @@ public final class ReservableTicket {
         return ticketType == getTicketType();
     }
 
-    public BookerId getBookerId() {
-        return bookerId;
-    }
-
-    public TicketType getTicketType() {
-        return ticketType;
+    boolean isRequestedTicket(TicketType ticketType) {
+        return isOfType(ticketType) && canBeReserved();
     }
 }

@@ -22,20 +22,16 @@ public class ReserveTicketsUseCase implements ReserveTickets {
     }
 
     @Override
-    public void execute(Long eventId, String ticketType, int numberOfTickets, String bookerUsername, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure) {
+    public void execute(ReserveTicketsInput reserveTicketsInput, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure) {
         try {
-            var eventId1 = new EventId(eventId);
-            var bookerUsername1 = new BookerUsername(bookerUsername);
-            var numberOfTickets1 = new NumberOfTickets(numberOfTickets);
+            Booker booker = findBooker.findByUsernameOrThrow(reserveTicketsInput.bookerUsername());
+            SelectedEvent event = findEvent.findByIdOrThrow(reserveTicketsInput.eventId());
 
-            Booker booker = findBooker.findByUsernameOrThrow(bookerUsername1);
-            SelectedEvent event = findEvent.findByIdOrThrow(eventId1);
-
-            event.bookTickets(ticketType, numberOfTickets, booker, new NumberOfTickets(numberOfTickets));
+            event.bookTickets(booker, reserveTicketsInput.numberOfTickets(), reserveTicketsInput.ticketType());
 
             this.updateEvent.withValue(event);
 
-            presentSuccess.present(eventId1,numberOfTickets, bookerUsername);
+            presentSuccess.present(reserveTicketsInput.eventId(), reserveTicketsInput.numberOfTickets(), reserveTicketsInput.bookerUsername());
         } catch (Exception e) {
             presentFailure.present(e);
         }

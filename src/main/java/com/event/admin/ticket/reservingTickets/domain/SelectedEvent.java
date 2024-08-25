@@ -1,10 +1,12 @@
 package com.event.admin.ticket.reservingTickets.domain;
 
 import com.event.admin.ticket.reservingTickets.domain.exception.NumberOfTicketsPerBuyerExceededException;
+import lombok.Getter;
 import lombok.ToString;
 
 @DDDAggregate
 @ToString
+@Getter
 public class SelectedEvent {
     private final EventId id;
     private final TicketsLeft ticketsLeft;
@@ -16,25 +18,16 @@ public class SelectedEvent {
         this.ticketsLeft = ticketsLeft;
     }
 
-    public void bookTickets(String ticketType, int numberOfTickets, Booker booker, NumberOfTickets requestedNumberOfTickets) {
+    public void bookTickets(Booker booker, NumberOfTickets requestedNumberOfTickets, TicketType ticketType) {
         if (exceedsNumberOfTicketsPerBooker(requestedNumberOfTickets)) {
             throw new NumberOfTicketsPerBuyerExceededException("Cannot reserve more tickets than allowed per buyer");
         }
 
-        ticketsLeft.markTicketsAsReserved(numberOfTickets, ticketType, booker);
+        ticketsLeft.markTicketsAsReserved(booker, ticketType, requestedNumberOfTickets);
     }
 
     public boolean exceedsNumberOfTicketsPerBooker(NumberOfTickets requestedNumberOfTickets) {
         return numberOfTicketsPerBooker.value() < requestedNumberOfTickets.value();
     }
-
-    public EventId getId() {
-        return id;
-    }
-
-    public TicketsLeft getTicketsLeft() {
-        return ticketsLeft;
-    }
-
 }
 

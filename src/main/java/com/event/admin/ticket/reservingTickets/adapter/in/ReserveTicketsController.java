@@ -1,6 +1,7 @@
 package com.event.admin.ticket.reservingTickets.adapter.in;
 
 import com.event.admin.ticket.reservingTickets.adapter.out.presenter.ReserveTicketsForEventPresenter;
+import com.event.admin.ticket.reservingTickets.application.usecase.ReserveTicketsInput;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.in.ReserveTickets;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -33,11 +34,15 @@ public class ReserveTicketsController {
         var bookerUsername = reserveTicketsRequest.getBookerUsername();
 
         log.info("Reserving {} tickets of type {} for user {}", numberOfTickets, ticketType, bookerUsername);
-        reserveTickets.execute(eventId, ticketType, numberOfTickets, bookerUsername, presenter, presenter);
+
+        var reserveTicketsInput = ReserveTicketsInput.withValid(eventId, ticketType, numberOfTickets, bookerUsername);
+        reserveTickets.execute(reserveTicketsInput, presenter, presenter);
 
         if (presenter.hasError()) {
+            log.error("Error reserving tickets: {}", presenter.getError());
             return presenter.getError();
         } else {
+            log.info("Successfully reserved tickets: {}", presenter.getSuccess());
             return presenter.getSuccess();
         }
     }
