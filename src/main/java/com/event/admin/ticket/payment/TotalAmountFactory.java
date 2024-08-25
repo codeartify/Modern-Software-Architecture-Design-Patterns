@@ -1,72 +1,85 @@
 package com.event.admin.ticket.payment;
 
 import com.event.admin.ticket.model.DiscountCode;
-import com.event.admin.ticket.model.PaymentRequest;
 import com.event.admin.ticket.model.Ticket;
-import org.springframework.jdbc.core.JdbcTemplate;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TotalAmountFactory {
-    private final JdbcTemplate jdbcTemplate;
+    public static final double VAT_RATE = 1.20;
+    public static final double FEE_RATE = 1.03;
 
-    public TotalAmountFactory(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    private final DiscountCodeRepository discountCodeRepository;
+
+    public TotalAmountFactory(DiscountCodeRepository discountCodeRepository) {
+        this.discountCodeRepository = discountCodeRepository;
     }
 
-    public double calculateTotalAmount(PaymentRequest paymentRequest) {
-        double totalAmount = 0;
-        double discountTotal = 0;
-
-        if (paymentRequest.getTickets().size() > 20) {
+    public double calculateTotalAmountFor(List<@Valid Ticket> tickets, String discountCode) {
+        if (tickets.size() > 20) {
             throw new IllegalArgumentException("Cannot purchase more than 20 overall tickets at a time.");
         }
 
-        for (Ticket ticket : paymentRequest.getTickets()) {
-            double ticketPriceWithVAT = ticket.getPrice() * 1.20;
-            totalAmount += ticketPriceWithVAT;
-
-            if (paymentRequest.getDiscountCode() != null && !paymentRequest.getDiscountCode().isEmpty()) {
-                String query = "SELECT * FROM discount_code WHERE code = ?";
-                DiscountCode discount = this.jdbcTemplate.queryForObject(query, new Object[]{paymentRequest.getDiscountCode()}, (rs, _) -> {
-                    DiscountCode discount1 = new DiscountCode();
-                    discount1.setCode(rs.getString("code"));
-                    discount1.setDiscountPercentage(rs.getDouble("discount_percentage"));
-                    discount1.setApplicableTicketType(rs.getString("applicable_ticket_type"));
-                    return discount1;
-                });
-                if (discount != null && (discount.getApplicableTicketType() == null || discount.getApplicableTicketType().equals(ticket.getType()))) {
-                    discountTotal += ticketPriceWithVAT * discount.getDiscountPercentage() / 100;
-                }
-            }
-        }
-
-        int numberOfTickets = paymentRequest.getTickets().size();
-        double groupDiscount;
-        if (numberOfTickets >= 11) {
-            groupDiscount = 0.30;
-        } else if (numberOfTickets >= 6) {
-            groupDiscount = 0.25;
-        } else if (numberOfTickets >= 2) {
-            groupDiscount = 0.20;
-        } else {
-            groupDiscount = 0;
-        }
-        discountTotal += totalAmount * groupDiscount;
-        totalAmount -= discountTotal;
-
-        double result;
-        if (totalAmount > 40.00) {
-            result = totalAmount * 0.025;
-        } else {
-            result = 0.99;
-        }
-        totalAmount += result;
-        return totalAmount;
+        return calculateTotalAmountWithDiscount(tickets, discountCode) + feeForQuantity(tickets);
     }
 
-    double getTotalAmountWithFee(PaymentRequest paymentRequest) {
-        double totalAmountWithVAT = calculateTotalAmount(paymentRequest) * 1.20;
-        return totalAmountWithVAT * 1.03;
+    private static double feeForQuantity(List<Ticket> tickets) {
+        var totalAmountBeforeDiscount = calculateTotalAmountFrom(tickets);
+
+        if (totalAmountBeforeDiscount > 40.00) {
+            return totalAmountBeforeDiscount * 0.025;
+        } else {
+            return 0.99;
+        }
+    }
+
+    private double calculateTotalAmountWithDiscount(List<@Valid Ticket> tickets, String discountCode) {
+        var totalAmount = calculateTotalAmountFrom(tickets);
+        var sumOfDiscountsPerTicket = calculateSumOfDiscountsPerTicket(tickets, discountCode);
+        var groupDiscount = calculateGroupDiscountFor(tickets);
+
+        return totalAmount - sumOfDiscountsPerTicket + (totalAmount * groupDiscount);
+    }
+
+    private static double calculateGroupDiscountFor(List<Ticket> tickets) {
+        if (tickets.size() >= 11) {
+            return 0.30;
+        } else if (tickets.size() >= 6) {
+            return 0.25;
+        } else if (tickets.size() >= 2) {
+            return 0.20;
+        } else {
+            return 0;
+        }
+    }
+
+    private double calculateSumOfDiscountsPerTicket(List<@Valid Ticket> tickets, String discountCode) {
+        var discount = discountCodeRepository.fetchDiscountCode(discountCode);
+
+        return tickets.stream()
+                .filter(ticket -> discountApplies(ticket, discount))
+                .mapToDouble(ticket -> calculateTicketPriceWithVAT(ticket) * discount.getDiscountPercentage() / 100)
+                .sum();
+    }
+
+    private static double calculateTotalAmountFrom(List<@Valid Ticket> tickets) {
+        return tickets.stream()
+                .mapToDouble(TotalAmountFactory::calculateTicketPriceWithVAT)
+                .sum();
+    }
+
+    private static double calculateTicketPriceWithVAT(Ticket ticket) {
+        return ticket.getPrice() * VAT_RATE;
+    }
+
+    private static boolean discountApplies(Ticket ticket, DiscountCode discountCode) {
+        return discountCode != null && (discountCode.getApplicableTicketType() == null || discountCode.getApplicableTicketType().equals(ticket.getType()));
+    }
+
+    public double getTotalAmountWithFee(List<@Valid Ticket> tickets, String discountCode) {
+        return calculateTotalAmountFor(tickets, discountCode) * VAT_RATE * FEE_RATE;
     }
 }

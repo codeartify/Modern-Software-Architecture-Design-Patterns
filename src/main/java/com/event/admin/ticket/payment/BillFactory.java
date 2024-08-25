@@ -17,7 +17,7 @@ public class BillFactory {
         Bill bill = new Bill();
         bill.setBuyerCompanyName(buyerCompanyName.value());
         bill.setBuyerName(buyerName.value());
-        bill.setAmount(this.totalAmountFactory.calculateTotalAmount(paymentRequest));
+        bill.setAmount(this.totalAmountFactory.getTotalAmountWithFee(paymentRequest.getTickets(), paymentRequest.getDiscountCode()));
         bill.setIban(iban.value());
         bill.setDescription(billDescription.value());
         bill.setOrganizerCompanyName(organizerCompanyName.value());
