@@ -28,6 +28,10 @@ public class TotalAmountFactory {
         return calculateTotalAmountWithDiscount(tickets, discountCode) + feeForQuantity(tickets);
     }
 
+    public double getTotalAmountWithFee(List<@Valid Ticket> tickets, DiscountCode discountCode1) {
+        return calculateTotalAmountFor(tickets, discountCode1) * VAT_RATE * FEE_RATE;
+    }
+
     private static double feeForQuantity(List<Ticket> tickets) {
         var totalAmountBeforeDiscount = calculateTotalAmountFrom(tickets);
 
@@ -79,9 +83,5 @@ public class TotalAmountFactory {
 
     private static boolean discountApplies(Ticket ticket, Discount discount) {
         return discount != null && (discount.getApplicableTicketType() == null || discount.getApplicableTicketType().equals(ticket.getType()));
-    }
-
-    public double getTotalAmountWithFee(List<@Valid Ticket> tickets, DiscountCode discountCode1) {
-        return calculateTotalAmountFor(tickets, discountCode1) * VAT_RATE * FEE_RATE;
     }
 }
