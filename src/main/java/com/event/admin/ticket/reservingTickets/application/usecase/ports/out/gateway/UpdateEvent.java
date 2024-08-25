@@ -1,7 +1,7 @@
 package com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway;
 
-import com.event.admin.ticket.reservingTickets.domain.Event2;
+import com.event.admin.ticket.reservingTickets.domain.SelectedEvent;
 
 public interface UpdateEvent {
-    Event2 withValue(Event2 event);
+    SelectedEvent withValue(SelectedEvent event);
 }

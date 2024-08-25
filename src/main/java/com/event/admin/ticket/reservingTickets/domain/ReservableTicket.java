@@ -6,13 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
-public final class Ticket2 {
+public final class ReservableTicket {
     private Long bookerId;
     private String type;
 
+    public ReservableTicket(Long bookerId, String type) {
+        this.bookerId = bookerId;
+        this.type = type;
+    }
 
     public void bookedBy(Long bookerId) {
         this.bookerId = bookerId;

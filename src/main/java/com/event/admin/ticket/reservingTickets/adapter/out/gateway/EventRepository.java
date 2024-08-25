@@ -2,8 +2,8 @@ package com.event.admin.ticket.reservingTickets.adapter.out.gateway;
 
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.FindEvent;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.UpdateEvent;
-import com.event.admin.ticket.reservingTickets.domain.Event2;
-import com.event.admin.ticket.reservingTickets.domain.Ticket2;
+import com.event.admin.ticket.reservingTickets.domain.SelectedEvent;
+import com.event.admin.ticket.reservingTickets.domain.ReservableTicket;
 import com.event.admin.ticket.reservingTickets.domain.TicketsLeft;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -26,32 +26,31 @@ public class EventRepository implements FindEvent, UpdateEvent {
     }
 
     @Override
-    public Optional<Event2> findById(@NotNull Long eventId) {
+    public Optional<SelectedEvent> findById(@NotNull Long eventId) {
         var query = "SELECT * FROM event e INNER JOIN ticket t on e.id = t.event_id WHERE e.id = ?";
         return jdbcTemplate.query(query, new Object[]{eventId}, (rs, _) -> toEvent(rs)).stream().findFirst();
-
     }
 
-    private static Event2 toEvent(ResultSet rs) throws SQLException {
-        var tickets = new ArrayList<Ticket2>();
+    private static SelectedEvent toEvent(ResultSet rs) throws SQLException {
+        var tickets = new ArrayList<ReservableTicket>();
         Long eventId = null;
         Integer ticketsPerBooker = null;
         do {
-            tickets.add(new Ticket2(rs.getLong("booker_id"), rs.getString("type")));
+            tickets.add(new ReservableTicket(rs.getLong("booker_id"), rs.getString("type")));
             if (eventId == null) {
                 eventId = rs.getLong("id");
                 ticketsPerBooker = rs.getInt("tickets_per_booker");
             }
         } while (rs.next());
         var ticketsLeft = new TicketsLeft(tickets);
-        return new Event2(eventId, ticketsLeft, ticketsPerBooker);
+        return new SelectedEvent(eventId, ticketsLeft, ticketsPerBooker);
     }
 
     @Override
-    public Event2 withValue(Event2 event) {
+    public SelectedEvent withValue(SelectedEvent event) {
         event.getTicketsLeft().ticketsLeft()
                 .stream()
-                .filter(Ticket2::isReserved)
+                .filter(ReservableTicket::isReserved)
                 .forEach(ticket -> {
             jdbcTemplate.update("UPDATE ticket \n" +
                             "SET booker_id = ?\n" +

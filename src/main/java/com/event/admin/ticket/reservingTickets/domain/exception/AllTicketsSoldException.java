@@ -1,4 +1,4 @@
-package com.event.admin.ticket.reservingTickets.application.usecase.exception;
+package com.event.admin.ticket.reservingTickets.domain.exception;
 
 public class AllTicketsSoldException extends IllegalArgumentException {
     public AllTicketsSoldException(String message) {
