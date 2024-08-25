@@ -2,7 +2,6 @@ package com.event.admin.ticket.payment.application;
 
 import com.event.admin.ticket.model.Bill;
 import com.event.admin.ticket.model.Payment;
-import com.event.admin.ticket.model.PaymentRequest;
 import com.event.admin.ticket.payment.dataaccess.PaymentRepository;
 import com.event.admin.ticket.payment.domain.*;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class PayByBillUseCase {
 
 
     public Payment createPayment(BillPaymentRequest billPaymentRequest) {
-        var bill = billFactory.createBill(billPaymentRequest.buyerCompanyName(), billPaymentRequest.buyerName(), billPaymentRequest.iban(), billPaymentRequest.billDescription(), billPaymentRequest.organizerCompanyName(), billPaymentRequest.tickets(), billPaymentRequest.discountCode());
+        var bill = billFactory.createBill(billPaymentRequest);
         notificationService.notifyBuyer(bill);
         notificationService.notifyOrganizer(billPaymentRequest.organizerCompanyName());
         var payment = createPaymentFor(bill);
