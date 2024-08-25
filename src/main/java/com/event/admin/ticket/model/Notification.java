@@ -4,6 +4,7 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -14,11 +15,4 @@ public class Notification {
     private String subject;
     private String message;
 
-    public static Notification createNotification(String recipient, String subject, String message) {
-        Notification organizerNotification = new Notification();
-        organizerNotification.setRecipient(recipient);
-        organizerNotification.setSubject(subject);
-        organizerNotification.setMessage(message);
-        return organizerNotification;
-    }
 }
