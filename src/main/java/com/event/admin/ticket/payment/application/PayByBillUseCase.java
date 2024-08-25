@@ -3,37 +3,30 @@ package com.event.admin.ticket.payment.application;
 import com.event.admin.ticket.model.Bill;
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.PaymentRequest;
-import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
+import com.event.admin.ticket.payment.dataaccess.PaymentRepository;
 import com.event.admin.ticket.payment.domain.*;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PayByBillUseCase implements PaymentUseCase {
-    private final JdbcTemplate jdbcTemplate;
-    private final OrganizerRepository organizerRepository;
+public class PayByBillUseCase {
     private final BillFactory billFactory;
     private final NotificationService notificationService;
+    private final PaymentRepository paymentRepository;
 
-    public PayByBillUseCase(JdbcTemplate jdbcTemplate, OrganizerRepository organizerRepository, BillFactory billFactory, NotificationService notificationService) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.organizerRepository = organizerRepository;
+    public PayByBillUseCase(BillFactory billFactory, NotificationService notificationService, PaymentRepository paymentRepository) {
         this.billFactory = billFactory;
         this.notificationService = notificationService;
+        this.paymentRepository = paymentRepository;
     }
 
-    @Override
-    public Payment createPayment(PaymentRequest paymentRequest) {
-        var organizerCompanyName = new OrganizerCompanyName(paymentRequest.getOrganizerCompanyName());
-        var buyerCompanyName = new BuyerCompanyName(paymentRequest.getBuyerCompanyName());
-        var buyerName = new BuyerName(paymentRequest.getBuyerName());
-        var iban = new Iban(paymentRequest.getIban());
-        var billDescription = new BillDescription(paymentRequest.getBillDescription());
 
-        var bill = billFactory.createBill(paymentRequest, buyerCompanyName, buyerName, iban, billDescription, organizerCompanyName);
+    public Payment createPayment(BillPaymentRequest billPaymentRequest) {
+        var bill = billFactory.createBill(billPaymentRequest.buyerCompanyName(), billPaymentRequest.buyerName(), billPaymentRequest.iban(), billPaymentRequest.billDescription(), billPaymentRequest.organizerCompanyName(), billPaymentRequest.tickets(), billPaymentRequest.discountCode());
         notificationService.notifyBuyer(bill);
-        notificationService.notifyOrganizer(organizerCompanyName);
-        return createPaymentFor(bill);
+        notificationService.notifyOrganizer(billPaymentRequest.organizerCompanyName());
+        var payment = createPaymentFor(bill);
+        paymentRepository.updatePayment(payment);
+        return payment;
     }
 
     private static Payment createPaymentFor(Bill bill) {

@@ -1,55 +1,52 @@
 package com.event.admin.ticket.payment.application;
 
-import com.event.admin.ticket.model.*;
-import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.event.admin.ticket.model.Payment;
+import com.event.admin.ticket.model.Ticket;
+import com.event.admin.ticket.payment.dataaccess.PaymentRepository;
+import com.event.admin.ticket.payment.dataaccess.TicketRepository;
+import com.event.admin.ticket.payment.domain.*;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.List;
 
 @Service
-public class PayByCreditCardUseCase implements PaymentUseCase {
-    private final JdbcTemplate jdbcTemplate;
+public class PayByCreditCardUseCase {
     private final TotalAmountFactory totalAmountFactory;
     private final NotificationService notificationService;
+    private final TicketRepository ticketRepository;
+    private final PaymentRepository paymentRepository;
 
-    public PayByCreditCardUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory, NotificationService notificationService) {
-        this.jdbcTemplate = jdbcTemplate;
+    public PayByCreditCardUseCase(TotalAmountFactory totalAmountFactory, NotificationService notificationService, TicketRepository ticketRepository, PaymentRepository paymentRepository) {
         this.totalAmountFactory = totalAmountFactory;
         this.notificationService = notificationService;
+        this.ticketRepository = ticketRepository;
+        this.paymentRepository = paymentRepository;
     }
 
-    @Override
-    public Payment createPayment(PaymentRequest paymentRequest) {
+    public Payment createPayment(CreditCardPaymentRequest creditCardPaymentRequest) {
+        var updatedTickets = addQRCodeTo(creditCardPaymentRequest.tickets());
+        updatedTickets.forEach(updatedTicket -> notificationService.notifyPerTicket(updatedTicket, creditCardPaymentRequest.buyerName()));
+        notificationService.notifyOrganizer(creditCardPaymentRequest.organizerCompanyName());
+        var totalAmount = this.totalAmountFactory.calculateTotalAmountFor(updatedTickets, creditCardPaymentRequest.discountCode());
+        var payment = createPaymentFor(totalAmount);
+        paymentRepository.updatePayment(payment);
+        return payment;
+    }
 
-        var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
+    private List<Ticket> addQRCodeTo(List<@Valid Ticket> tickets) {
+        return tickets.stream()
+                .map(ticket -> ticketRepository.updateQrCodeFor(ticket, QrCode.create()))
+                .toList();
+    }
 
-
-        for (Ticket ticket : paymentRequest.getTickets()) {
-            String qrCodeUrl = "http://example.com/qr?ticket=" + UUID.randomUUID();
-            ticket.setQrCode(qrCodeUrl);
-
-            String query = "UPDATE ticket SET qr_code = ? WHERE id = ?";
-            this.jdbcTemplate.update(query, qrCodeUrl, ticket.getId());
-
-            // Send notification to the buyer
-            Notification buyerNotification = new Notification();
-            buyerNotification.setRecipient(paymentRequest.getBuyerName());
-            buyerNotification.setSubject("Payment Successful");
-            buyerNotification.setMessage("Your payment was successful. Here is your ticket:\n" + "Event: " + ticket.getEvent().getName() + "\n" + "Ticket Type: " + ticket.getType() + "\n" + "QR Code: " + qrCodeUrl);
-            String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-            this.jdbcTemplate.update(query1, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
-        }
-
-        notificationService.notifyOrganizer(new OrganizerCompanyName(organizerCompanyName));
-
+    private Payment createPaymentFor(double totalAmount) {
         Payment payment = new Payment();
-
-        payment.setAmount(this.totalAmountFactory.calculateTotalAmountFor(paymentRequest.getTickets(), paymentRequest.getDiscountCode()));
-        payment.setPaymentMethod(paymentRequest.getPaymentMethod());
+        payment.setAmount(totalAmount);
+        payment.setPaymentMethod(PaymentMethod.CREDIT_CARD.name());
         payment.setDescription("Payment for tickets via credit card");
         payment.setSuccessful(true);
         return payment;
-
     }
+
 }

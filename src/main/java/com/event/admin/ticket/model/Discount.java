@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class DiscountCode {
+public class Discount {
     private Long id;
     private String code;
     private double discountPercentage;

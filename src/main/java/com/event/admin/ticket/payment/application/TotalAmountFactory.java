@@ -1,8 +1,9 @@
 package com.event.admin.ticket.payment.application;
 
-import com.event.admin.ticket.model.DiscountCode;
+import com.event.admin.ticket.model.Discount;
 import com.event.admin.ticket.model.Ticket;
 import com.event.admin.ticket.payment.dataaccess.DiscountCodeRepository;
+import com.event.admin.ticket.payment.domain.DiscountCode;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class TotalAmountFactory {
         this.discountCodeRepository = discountCodeRepository;
     }
 
-    public double calculateTotalAmountFor(List<@Valid Ticket> tickets, String discountCode) {
+    public double calculateTotalAmountFor(List<@Valid Ticket> tickets, DiscountCode discountCode) {
         if (tickets.size() > 20) {
             throw new IllegalArgumentException("Cannot purchase more than 20 overall tickets at a time.");
         }
@@ -37,7 +38,7 @@ public class TotalAmountFactory {
         }
     }
 
-    private double calculateTotalAmountWithDiscount(List<@Valid Ticket> tickets, String discountCode) {
+    private double calculateTotalAmountWithDiscount(List<@Valid Ticket> tickets, DiscountCode discountCode) {
         var totalAmount = calculateTotalAmountFrom(tickets);
         var sumOfDiscountsPerTicket = calculateSumOfDiscountsPerTicket(tickets, discountCode);
         var groupDiscount = calculateGroupDiscountFor(tickets);
@@ -57,7 +58,7 @@ public class TotalAmountFactory {
         }
     }
 
-    private double calculateSumOfDiscountsPerTicket(List<@Valid Ticket> tickets, String discountCode) {
+    private double calculateSumOfDiscountsPerTicket(List<@Valid Ticket> tickets, DiscountCode discountCode) {
         var discount = discountCodeRepository.fetchDiscountCode(discountCode);
 
         return tickets.stream()
@@ -76,11 +77,11 @@ public class TotalAmountFactory {
         return ticket.getPrice() * VAT_RATE;
     }
 
-    private static boolean discountApplies(Ticket ticket, DiscountCode discountCode) {
-        return discountCode != null && (discountCode.getApplicableTicketType() == null || discountCode.getApplicableTicketType().equals(ticket.getType()));
+    private static boolean discountApplies(Ticket ticket, Discount discount) {
+        return discount != null && (discount.getApplicableTicketType() == null || discount.getApplicableTicketType().equals(ticket.getType()));
     }
 
-    public double getTotalAmountWithFee(List<@Valid Ticket> tickets, String discountCode) {
-        return calculateTotalAmountFor(tickets, discountCode) * VAT_RATE * FEE_RATE;
+    public double getTotalAmountWithFee(List<@Valid Ticket> tickets, DiscountCode discountCode1) {
+        return calculateTotalAmountFor(tickets, discountCode1) * VAT_RATE * FEE_RATE;
     }
 }

@@ -3,26 +3,31 @@ package com.event.admin.ticket.payment.application;
 import com.event.admin.ticket.model.Bill;
 import com.event.admin.ticket.model.Notification;
 import com.event.admin.ticket.model.Organizer;
+import com.event.admin.ticket.model.Ticket;
+import com.event.admin.ticket.payment.dataaccess.Notifications;
 import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
+import com.event.admin.ticket.payment.domain.BuyerName;
 import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
 import lombok.AllArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class NotificationService {
-    private final JdbcTemplate jdbcTemplate;
     private final OrganizerRepository organizerRepository;
+    private final Notifications notifications;
 
     public void notifyBuyer(Bill bill) {
         var buyerNotification = Notification.builder()
                 .recipient(bill.getBuyerName())
                 .subject("New Bill Issued")
-                .message("A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription())
+                .message("""
+                        A new bill has been issued to your company. Please check your details:
+                        Amount: %s
+                        Description: %s""".formatted(bill.getAmount(), bill.getDescription()))
                 .build();
 
-        sendNotification(buyerNotification);
+        notifications.sendNotification(buyerNotification);
     }
 
     public void notifyOrganizer(OrganizerCompanyName organizerCompanyName) {
@@ -35,11 +40,21 @@ public class NotificationService {
                     .message("A new ticket sale has been processed. Please check your event dashboard.")
                     .build();
 
-            sendNotification(organizerNotification);
+            notifications.sendNotification(organizerNotification);
         }
     }
 
-    private void sendNotification(Notification notification) {
-        this.jdbcTemplate.update("INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)", notification.getRecipient(), notification.getSubject(), notification.getMessage());
+    public void notifyPerTicket(Ticket ticket, BuyerName buyerName) {
+        var notification = Notification.builder()
+                .recipient(buyerName.value())
+                .subject("Payment Successful")
+                .message("""
+                        Your payment was successful. Here is your ticket:
+                        Event: %s
+                        Ticket Type: %s
+                        QR Code: %s""".formatted(ticket.getEvent().getName(), ticket.getType(), ticket.getQrCode()))
+                .build();
+
+        notifications.sendNotification(notification);
     }
 }

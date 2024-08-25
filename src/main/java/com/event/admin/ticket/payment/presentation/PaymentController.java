@@ -2,12 +2,15 @@ package com.event.admin.ticket.payment.presentation;
 
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.PaymentRequest;
-import com.event.admin.ticket.payment.application.PaymentUseCaseFactory;
-import com.event.admin.ticket.payment.domain.PaymentMethod;
+import com.event.admin.ticket.payment.application.BillPaymentRequest;
+import com.event.admin.ticket.payment.application.CreditCardPaymentRequest;
+import com.event.admin.ticket.payment.application.PayByBillUseCase;
+import com.event.admin.ticket.payment.application.PayByCreditCardUseCase;
+import com.event.admin.ticket.payment.domain.*;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,38 +19,57 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api")
 public class PaymentController {
+    private final PayByBillUseCase payByBillUseCase;
+    private final PayByCreditCardUseCase payByCreditCardUseCase;
 
-    private final JdbcTemplate jdbcTemplate;
-
-    public PaymentController(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    // Endpoint to process a payment
     @PostMapping("/tickets/payment")
     @Transactional
     public ResponseEntity<Payment> processPayment(@Valid @RequestBody PaymentRequest paymentRequest) {
         log.info("Processing payment...");
         log.info("Payment request: {}", paymentRequest);
 
-
         var paymentMethod = PaymentMethod.valueOf(paymentRequest.getPaymentMethod().toUpperCase());
 
-        var paymentFactory = PaymentUseCaseFactory.createPaymentUseCase(jdbcTemplate, paymentMethod);
+        if (PaymentMethod.BILL.equals(paymentMethod)) {
+            var billPaymentRequest = toBillPaymentRequest(paymentRequest);
+            var payment = payByBillUseCase.createPayment(billPaymentRequest);
+            return ResponseEntity.ok(payment);
+        }
 
-        Payment payment = paymentFactory.createPayment(paymentRequest);
+        if (PaymentMethod.CREDIT_CARD.equals(paymentMethod)) {
+            var creditCardPaymentRequest = toCreditCardPaymentRequest(paymentRequest);
+            var payment = payByCreditCardUseCase.createPayment(creditCardPaymentRequest);
+            return ResponseEntity.ok(payment);
 
-        updatePayment(payment);
+        }
 
-        return ResponseEntity.ok(payment);
+        throw new IllegalArgumentException("Invalid payment type.");
 
     }
 
-    private void updatePayment(Payment payment) {
-        String query = "INSERT INTO payment (amount, payment_method, description, successful) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(query, payment.getAmount(), payment.getPaymentMethod(), payment.getDescription(), payment.isSuccessful());
+    private static CreditCardPaymentRequest toCreditCardPaymentRequest(PaymentRequest paymentRequest) {
+        var tickets = paymentRequest.getTickets();
+        var organizerCompanyName = new OrganizerCompanyName(paymentRequest.getOrganizerCompanyName());
+        var buyerName = new BuyerName(paymentRequest.getBuyerName());
+        var discountCode = new DiscountCode(paymentRequest.getDiscountCode());
+
+        var creditCardPaymentRequest = new CreditCardPaymentRequest(tickets, buyerName, organizerCompanyName, discountCode);
+        return creditCardPaymentRequest;
+    }
+
+    private static BillPaymentRequest toBillPaymentRequest(PaymentRequest paymentRequest) {
+        var organizerCompanyName = new OrganizerCompanyName(paymentRequest.getOrganizerCompanyName());
+        var buyerCompanyName = new BuyerCompanyName(paymentRequest.getBuyerCompanyName());
+        var buyerName = new BuyerName(paymentRequest.getBuyerName());
+        var iban = new Iban(paymentRequest.getIban());
+        var billDescription = new BillDescription(paymentRequest.getBillDescription());
+        var tickets = paymentRequest.getTickets();
+        var discountCode = new DiscountCode(paymentRequest.getDiscountCode());
+
+        return new BillPaymentRequest(tickets, buyerName, organizerCompanyName, discountCode, buyerCompanyName, iban, billDescription);
     }
 
 }
