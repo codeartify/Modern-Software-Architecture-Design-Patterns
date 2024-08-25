@@ -2,9 +2,7 @@ package com.event.admin.ticket.reservingTickets.adapter.out.gateway;
 
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.FindEvent;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.UpdateEvent;
-import com.event.admin.ticket.reservingTickets.domain.SelectedEvent;
-import com.event.admin.ticket.reservingTickets.domain.ReservableTicket;
-import com.event.admin.ticket.reservingTickets.domain.TicketsLeft;
+import com.event.admin.ticket.reservingTickets.domain.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,7 +34,7 @@ public class EventRepository implements FindEvent, UpdateEvent {
         Long eventId = null;
         Integer ticketsPerBooker = null;
         do {
-            tickets.add(new ReservableTicket(rs.getLong("booker_id"), rs.getString("type")));
+            tickets.add(new ReservableTicket(new BookerId(rs.getLong("booker_id")), TicketType.getValueOf(rs.getString("type"))));
             if (eventId == null) {
                 eventId = rs.getLong("id");
                 ticketsPerBooker = rs.getInt("tickets_per_booker");
@@ -52,7 +50,7 @@ public class EventRepository implements FindEvent, UpdateEvent {
                 .stream()
                 .filter(ReservableTicket::isReserved)
                 .forEach(ticket -> {
-            jdbcTemplate.update("UPDATE ticket \n" +
+                    jdbcTemplate.update("UPDATE ticket \n" +
                             "SET booker_id = ?\n" +
                             "WHERE id = (\n" +
                             "    SELECT id FROM (\n" +
@@ -61,9 +59,9 @@ public class EventRepository implements FindEvent, UpdateEvent {
                             "        WHERE event_id = ? AND type = ? AND booker_id IS NULL\n" +
                             "    ) AS t WHERE rn = 1\n" +
                             ");",
-                    ticket.getBookerId(),  // Corrected: Booker ID should be set here
-                    event.getId(),         // Assuming event has a getId method
-                    ticket.getType());
+                    ticket.getBookerId().value(),
+                    event.getId(),
+                            ticket.getTicketType().name());
         });
         return event;
     }

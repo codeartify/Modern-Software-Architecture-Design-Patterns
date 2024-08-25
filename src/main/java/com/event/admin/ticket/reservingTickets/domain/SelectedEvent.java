@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 @DDDAggregate
-@Getter
 @AllArgsConstructor
 @ToString
 public class SelectedEvent {
@@ -24,6 +23,18 @@ public class SelectedEvent {
 
     public boolean exceedsNumberOfTicketsPerBooker(int numberOfTickets) {
         return numberOfTickets > this.getNumberOfTicketsPerBooker();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public TicketsLeft getTicketsLeft() {
+        return ticketsLeft;
+    }
+
+    public int getNumberOfTicketsPerBooker() {
+        return numberOfTicketsPerBooker;
     }
 }
 

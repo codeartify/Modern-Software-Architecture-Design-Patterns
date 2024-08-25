@@ -16,10 +16,10 @@ public record TicketsLeft(List<ReservableTicket> ticketsLeft) {
             throw new TooFewTicketsOfTypeLeftException("Not enough tickets of type " + ticketType + " left for the event");
         }
         for (ReservableTicket ticket : ticketsLeft) {
-            if (ticket.isOfType(ticketType)) {
-                ticket.bookedBy(booker.id());
+            if (ticket.isOfType(TicketType.getValueOf(ticketType))) {
+                ticket.bookedBy(new BookerId(booker.id()));
             }
-            if (ticket.isOfType(ticketType)) {
+            if (ticket.isOfType(TicketType.getValueOf(ticketType))) {
                 numberOfTickets--;
             }
             if (numberOfTickets == 0) {
@@ -35,7 +35,7 @@ public record TicketsLeft(List<ReservableTicket> ticketsLeft) {
     private long numberOfTicketsLeftForType(String ticketType) {
         return ticketsLeft()
                 .stream()
-                .filter(ticket -> ticket.isOfType(ticketType) && ticket.canBeReserved())
+                .filter(ticket -> ticket.isOfType(TicketType.getValueOf(ticketType)) && ticket.canBeReserved())
                 .count();
     }
 

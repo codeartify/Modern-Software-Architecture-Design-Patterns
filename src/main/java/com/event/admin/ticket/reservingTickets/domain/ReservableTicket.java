@@ -1,34 +1,39 @@
 package com.event.admin.ticket.reservingTickets.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Getter
 @ToString
 public final class ReservableTicket {
-    private Long bookerId;
-    private String type;
 
-    public ReservableTicket(Long bookerId, String type) {
+    private BookerId bookerId;
+    private final TicketType ticketType;
+
+    public ReservableTicket(BookerId bookerId, TicketType ticketType) {
         this.bookerId = bookerId;
-        this.type = type;
+        this.ticketType = ticketType;
     }
 
-    public void bookedBy(Long bookerId) {
+    public void bookedBy(BookerId bookerId) {
         this.bookerId = bookerId;
-    }
-
-    public boolean isReserved() {
-        return getBookerId() != null && getBookerId() > 0;
     }
 
     public boolean canBeReserved() {
         return !isReserved();
     }
 
-    public boolean isOfType(String ticketType) {
-        return ticketType.equals(getType());
+    public boolean isReserved() {
+        return this.getBookerId() != null;
+    }
+
+    public boolean isOfType(TicketType ticketType) {
+        return ticketType == getTicketType();
+    }
+
+    public BookerId getBookerId() {
+        return bookerId;
+    }
+
+    public TicketType getTicketType() {
+        return ticketType;
     }
 }
