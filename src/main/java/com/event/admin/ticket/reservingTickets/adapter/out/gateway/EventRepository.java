@@ -3,7 +3,6 @@ package com.event.admin.ticket.reservingTickets.adapter.out.gateway;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.FindEvent;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.UpdateEvent;
 import com.event.admin.ticket.reservingTickets.domain.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -24,9 +23,9 @@ public class EventRepository implements FindEvent, UpdateEvent {
     }
 
     @Override
-    public Optional<SelectedEvent> findById(@NotNull Long eventId) {
+    public Optional<SelectedEvent> findById(EventId eventId) {
         var query = "SELECT * FROM event e INNER JOIN ticket t on e.id = t.event_id WHERE e.id = ?";
-        return jdbcTemplate.query(query, new Object[]{eventId}, (rs, _) -> toEvent(rs)).stream().findFirst();
+        return jdbcTemplate.query(query, new Object[]{eventId.value()}, (rs, _) -> toEvent(rs)).stream().findFirst();
     }
 
     private static SelectedEvent toEvent(ResultSet rs) throws SQLException {

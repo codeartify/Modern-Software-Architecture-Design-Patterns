@@ -1,6 +1,5 @@
 package com.event.admin.ticket.reservingTickets.application.usecase;
 
-import com.event.admin.ticket.reservingTickets.application.usecase.exception.*;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.presenter.PresentBookTicketsFailure;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.in.ReserveTickets;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.FindBooker;
@@ -8,6 +7,7 @@ import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gat
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.presenter.PresentBookTicketsSuccess;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.UpdateEvent;
 import com.event.admin.ticket.reservingTickets.domain.Booker;
+import com.event.admin.ticket.reservingTickets.domain.EventId;
 import com.event.admin.ticket.reservingTickets.domain.SelectedEvent;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +26,16 @@ public class ReserveTicketsUseCase implements ReserveTickets {
     @Override
     public void execute(Long eventId, String ticketType, int numberOfTickets, String bookerUsername, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure) {
         try {
-            Booker booker = this.findBooker.findByUsername(bookerUsername).orElseThrow(() -> new MissingBookerException("Booker not found"));
-            SelectedEvent event = this.findEvent.findById(eventId).orElseThrow(() -> new MissingEventException("Event not found"));
+            var eventId1 = new EventId(eventId);
+
+            Booker booker = findBooker.findByUsernameOrThrow(bookerUsername);
+            SelectedEvent event = findEvent.findByIdOrThrow(eventId1);
 
             event.bookTickets(ticketType, numberOfTickets, booker);
 
             this.updateEvent.withValue(event);
 
-            presentSuccess.present(eventId, numberOfTickets, bookerUsername);
+            presentSuccess.present(eventId1,numberOfTickets, bookerUsername);
         } catch (Exception e) {
             presentFailure.present(e);
         }
