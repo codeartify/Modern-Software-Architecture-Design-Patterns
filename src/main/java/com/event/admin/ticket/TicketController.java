@@ -1,11 +1,7 @@
 package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.*;
-import com.event.admin.ticket.reservation.adapter.in.ReserveTicketsRequest;
-import com.event.admin.ticket.reservation.adapter.out.presenter.ReserveTicketsForEventPresenter;
-import com.event.admin.ticket.reservation.application.ports.in.ReserveTickets;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +27,6 @@ import java.util.UUID;
 public class TicketController {
 
     private final JdbcTemplate jdbcTemplate;
-
-
 
     // Endpoint to create a new event
     @PostMapping("/events")

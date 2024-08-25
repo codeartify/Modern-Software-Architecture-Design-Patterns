@@ -2,7 +2,7 @@ package com.event.admin.ticket;
 
 import com.event.admin.ticket.model.Event;
 import com.event.admin.ticket.model.PaymentRequest;
-import com.event.admin.ticket.reservation.adapter.in.ReserveTicketsRequest;
+import com.event.admin.ticket.reservingTickets.adapter.in.ReserveTicketsRequest;
 import com.event.admin.ticket.model.Ticket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
