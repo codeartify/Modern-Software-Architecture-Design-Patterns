@@ -1,79 +1,75 @@
 package com.event.admin.ticket.payment;
 
 import com.event.admin.ticket.model.*;
-import com.event.admin.ticket.payment.domain.BuyerName;
-import com.event.admin.ticket.payment.domain.BuyerCompanyName;
-import com.event.admin.ticket.payment.domain.Iban;
+import com.event.admin.ticket.payment.domain.*;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 public class PayByBillUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
     private final TotalAmountFactory totalAmountFactory;
+    private final OrganizerRepository organizerRepository;
 
-    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory) {
+    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory, OrganizerRepository organizerRepository) {
         this.jdbcTemplate = jdbcTemplate;
         this.totalAmountFactory = totalAmountFactory;
+        this.organizerRepository = organizerRepository;
     }
 
     @Override
     public Payment createPayment(PaymentRequest paymentRequest) {
-        Payment payment = new Payment();
-        payment.setAmount(totalAmountFactory.calculateTotalAmount(paymentRequest));
-        payment.setPaymentMethod(paymentRequest.getPaymentMethod());
-
-        var organizerCompanyName = paymentRequest.getOrganizerCompanyName();
-
+        var organizerCompanyName = new OrganizerCompanyName(paymentRequest.getOrganizerCompanyName());
         var buyerCompanyName = new BuyerCompanyName(paymentRequest.getBuyerCompanyName());
         var buyerName = new BuyerName(paymentRequest.getBuyerName());
+        var iban = new Iban(paymentRequest.getIban());
+        var billDescription = new BillDescription(paymentRequest.getBillDescription());
 
-        Bill bill = new Bill();
-        bill.setBuyerCompanyName(buyerCompanyName.value());
-        bill.setBuyerName(buyerName.value());
-        bill.setAmount(totalAmountFactory.getTotalAmountWithFee(paymentRequest));
-        bill.setIban(new Iban(paymentRequest.getIban()).value());
-        bill.setDescription(paymentRequest.getBillDescription());
-        bill.setOrganizerCompanyName(organizerCompanyName);
-        bill.setCreationDate(LocalDate.now());
-        bill.setPaid(false);
+        var bill = createBill(paymentRequest, buyerCompanyName, buyerName, iban, billDescription, organizerCompanyName);
+        notifyBuyer(bill);
+        notifyOrganizer(organizerCompanyName);
+        return createPaymentFor(bill);
+    }
 
-        // Send notification to the buyer
-        Notification buyerNotification = new Notification();
-        buyerNotification.setRecipient(buyerName.value());
-        buyerNotification.setSubject("New Bill Issued");
-        buyerNotification.setMessage("A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription());
-        String query = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-        this.jdbcTemplate.update(query, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
-
-        // Notify the organizer
-        String query2 = "SELECT * FROM organizer WHERE company_name = ?";
-        Organizer organizer = this.jdbcTemplate.queryForObject(query2, new Object[]{organizerCompanyName}, new RowMapper<Organizer>() {
-            @Override
-            public Organizer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Organizer organizer = new Organizer();
-                organizer.setId(rs.getLong("id"));
-                organizer.setCompanyName(rs.getString("company_name"));
-                organizer.setContactName(rs.getString("contact_name"));
-                return organizer;
-            }
-        });
-
-        if (organizer != null) {
-            Notification organizerNotification = new Notification();
-            organizerNotification.setRecipient(organizer.getContactName());
-            organizerNotification.setSubject("New Ticket Sale");
-            organizerNotification.setMessage("A new ticket sale has been processed. Please check your event dashboard.");
-            String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
-            this.jdbcTemplate.update(query1, organizerNotification.getRecipient(), organizerNotification.getSubject(), organizerNotification.getMessage());
-        }
-
+    private static Payment createPaymentFor(Bill bill) {
+        Payment payment = new Payment();
+        payment.setAmount(bill.getAmount());
+        payment.setPaymentMethod(PaymentMethod.BILL.name());
         payment.setDescription("Bill payment for tickets");
         payment.setSuccessful(true);
         return payment;
+    }
+
+    private Bill createBill(PaymentRequest paymentRequest, BuyerCompanyName buyerCompanyName, BuyerName buyerName, Iban iban, BillDescription billDescription, OrganizerCompanyName organizerCompanyName) {
+        Bill bill = new Bill();
+        bill.setBuyerCompanyName(buyerCompanyName.value());
+        bill.setBuyerName(buyerName.value());
+        bill.setAmount(totalAmountFactory.calculateTotalAmount(paymentRequest));
+        bill.setIban(iban.value());
+        bill.setDescription(billDescription.value());
+        bill.setOrganizerCompanyName(organizerCompanyName.value());
+        bill.setCreationDate(LocalDate.now());
+        bill.setPaid(false);
+        return bill;
+    }
+
+    private void notifyOrganizer(OrganizerCompanyName organizerCompanyName) {
+        Organizer organizer = organizerRepository.findByOrganizerCompanyName(organizerCompanyName);
+
+        if (organizer != null) {
+            var organizerNotification = Notification.createNotification(organizer.getContactName(), "New Ticket Sale", "A new ticket sale has been processed. Please check your event dashboard.");
+            sendNotification(organizerNotification);
+        }
+    }
+
+    private void notifyBuyer(Bill bill) {
+        var buyerNotification = Notification.createNotification(bill.getBuyerName(), "New Bill Issued", "A new bill has been issued to your company. Please check your details:\n" + "Amount: " + bill.getAmount() + "\n" + "Description: " + bill.getDescription());
+        sendNotification(buyerNotification);
+    }
+
+    private void sendNotification(Notification notification) {
+        String query1 = "INSERT INTO notification (recipient, subject, message) VALUES (?, ?, ?)";
+        this.jdbcTemplate.update(query1, notification.getRecipient(), notification.getSubject(), notification.getMessage());
     }
 
 }

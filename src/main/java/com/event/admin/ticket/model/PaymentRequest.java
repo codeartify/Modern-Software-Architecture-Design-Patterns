@@ -13,7 +13,6 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class PaymentRequest {
-    private String paymentType;
     private List<@Valid Ticket> tickets;
     private String paymentMethod;
     private String discountCode;

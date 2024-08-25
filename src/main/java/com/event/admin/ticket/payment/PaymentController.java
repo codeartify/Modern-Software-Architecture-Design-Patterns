@@ -2,6 +2,7 @@ package com.event.admin.ticket.payment;
 
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.PaymentRequest;
+import com.event.admin.ticket.payment.domain.PaymentMethod;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,9 @@ public class PaymentController {
         log.info("Payment request: {}", paymentRequest);
 
 
-        var paymentFactory = PaymentUseCaseFactory.createPaymentUseCase(jdbcTemplate, paymentRequest.getPaymentType());
+        var paymentMethod = PaymentMethod.valueOf(paymentRequest.getPaymentMethod().toUpperCase());
+
+        var paymentFactory = PaymentUseCaseFactory.createPaymentUseCase(jdbcTemplate, paymentMethod);
 
         Payment payment = paymentFactory.createPayment(paymentRequest);
 

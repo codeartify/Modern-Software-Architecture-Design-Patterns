@@ -1,5 +1,6 @@
 package com.event.admin.ticket.payment;
 
+import com.event.admin.ticket.payment.domain.PaymentMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,11 @@ public class PaymentUseCaseFactory {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static PaymentUseCase createPaymentUseCase(JdbcTemplate jdbcTemplate, String paymentType) {
-        if ("credit_card".equalsIgnoreCase(paymentType)) {
+    public static PaymentUseCase createPaymentUseCase(JdbcTemplate jdbcTemplate, PaymentMethod paymentMethod) {
+        if (PaymentMethod.CREDIT_CARD.equals(paymentMethod)) {
             return new PayByCreditCardUseCase(jdbcTemplate, new TotalAmountFactory(jdbcTemplate));
-        } else if ("bill".equalsIgnoreCase(paymentType)) {
-            return new PayByBillUseCase(jdbcTemplate, new TotalAmountFactory(jdbcTemplate));
+        } else if (PaymentMethod.BILL.equals(paymentMethod)) {
+            return new PayByBillUseCase(jdbcTemplate, new TotalAmountFactory(jdbcTemplate), new OrganizerRepository(jdbcTemplate));
         } else {
             throw new IllegalArgumentException("Invalid payment type.");
         }

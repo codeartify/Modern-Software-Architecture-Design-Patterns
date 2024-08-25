@@ -114,15 +114,14 @@ class TicketControllerIntegrationTest {
     }
 
     // Helper method to create a valid PaymentRequest
-    private PaymentRequest createValidPaymentRequest(String paymentType) {
+    private PaymentRequest createValidPaymentRequest(String paymentMethod) {
         Ticket ticket1 = new Ticket(1L, 100.00, "VIP", null, null, false, new Event(1L, "Spring Boot Workshop", 5));
         Ticket ticket2 = new Ticket(2L, 50.00, "Standard", null, null, false, new Event(1L, "Spring Boot Workshop", 5));
         List<Ticket> tickets = Arrays.asList(ticket1, ticket2);
 
         PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setPaymentType(paymentType);
         paymentRequest.setTickets(tickets);
-        paymentRequest.setPaymentMethod("CreditCard");
+        paymentRequest.setPaymentMethod(paymentMethod);
         paymentRequest.setDiscountCode("SUMMER20");
         paymentRequest.setBuyerCompanyName("SuperSoftware AG");
         paymentRequest.setOrganizerCompanyName("Codeartify GmbH");
@@ -137,7 +136,6 @@ class TicketControllerIntegrationTest {
     private PaymentRequest createInvalidPaymentRequestWithMoreThan20Tickets() {
         List<Ticket> tickets = createMultipleTickets(21); // More than 20 tickets
         PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setPaymentType("credit_card");
         paymentRequest.setTickets(tickets);
         paymentRequest.setPaymentMethod("CreditCard");
         paymentRequest.setDiscountCode("SUMMER20");
