@@ -43,7 +43,6 @@ public class PaymentController {
             var creditCardPaymentRequest = toCreditCardPaymentRequest(paymentRequest);
             var payment = payByCreditCardUseCase.createPayment(creditCardPaymentRequest);
             return ResponseEntity.ok(payment);
-
         }
 
         throw new IllegalArgumentException("Invalid payment type.");
