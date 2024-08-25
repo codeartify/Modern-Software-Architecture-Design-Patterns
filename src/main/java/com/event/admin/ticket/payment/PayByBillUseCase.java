@@ -4,17 +4,15 @@ import com.event.admin.ticket.model.*;
 import com.event.admin.ticket.payment.domain.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.time.LocalDate;
-
 public class PayByBillUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
-    private final TotalAmountFactory totalAmountFactory;
     private final OrganizerRepository organizerRepository;
+    private final BillFactory billFactory;
 
-    public PayByBillUseCase(JdbcTemplate jdbcTemplate, TotalAmountFactory totalAmountFactory, OrganizerRepository organizerRepository) {
+    public PayByBillUseCase(JdbcTemplate jdbcTemplate, OrganizerRepository organizerRepository, BillFactory billFactory) {
         this.jdbcTemplate = jdbcTemplate;
-        this.totalAmountFactory = totalAmountFactory;
         this.organizerRepository = organizerRepository;
+        this.billFactory = billFactory;
     }
 
     @Override
@@ -25,7 +23,7 @@ public class PayByBillUseCase implements PaymentUseCase {
         var iban = new Iban(paymentRequest.getIban());
         var billDescription = new BillDescription(paymentRequest.getBillDescription());
 
-        var bill = createBill(paymentRequest, buyerCompanyName, buyerName, iban, billDescription, organizerCompanyName);
+        var bill = billFactory.createBill(paymentRequest, buyerCompanyName, buyerName, iban, billDescription, organizerCompanyName);
         notifyBuyer(bill);
         notifyOrganizer(organizerCompanyName);
         return createPaymentFor(bill);
@@ -38,19 +36,6 @@ public class PayByBillUseCase implements PaymentUseCase {
         payment.setDescription("Bill payment for tickets");
         payment.setSuccessful(true);
         return payment;
-    }
-
-    private Bill createBill(PaymentRequest paymentRequest, BuyerCompanyName buyerCompanyName, BuyerName buyerName, Iban iban, BillDescription billDescription, OrganizerCompanyName organizerCompanyName) {
-        Bill bill = new Bill();
-        bill.setBuyerCompanyName(buyerCompanyName.value());
-        bill.setBuyerName(buyerName.value());
-        bill.setAmount(totalAmountFactory.calculateTotalAmount(paymentRequest));
-        bill.setIban(iban.value());
-        bill.setDescription(billDescription.value());
-        bill.setOrganizerCompanyName(organizerCompanyName.value());
-        bill.setCreationDate(LocalDate.now());
-        bill.setPaid(false);
-        return bill;
     }
 
     private void notifyOrganizer(OrganizerCompanyName organizerCompanyName) {
