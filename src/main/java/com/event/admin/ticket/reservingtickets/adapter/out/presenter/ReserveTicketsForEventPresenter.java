@@ -10,7 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
-public class ReserveTicketsForEventPresenter implements PresentBookTicketsSuccess, PresentBookTicketsFailure {
+public class ReserveTicketsForEventPresenter
+        implements
+        PresentBookTicketsSuccess,
+        PresentBookTicketsFailure {
+
     private ReserveTicketsResponse body;
     private Exception error;
 
