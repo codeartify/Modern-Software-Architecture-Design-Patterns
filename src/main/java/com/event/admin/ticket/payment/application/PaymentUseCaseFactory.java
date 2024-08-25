@@ -13,7 +13,7 @@ public class PaymentUseCaseFactory {
         if (PaymentMethod.CREDIT_CARD.equals(paymentMethod)) {
             return new PayByCreditCardUseCase(jdbcTemplate,
                     new TotalAmountFactory(
-                            new DiscountCodeRepository(jdbcTemplate)));
+                            new DiscountCodeRepository(jdbcTemplate)), new NotificationService(jdbcTemplate, new OrganizerRepository(jdbcTemplate)));
         } else if (PaymentMethod.BILL.equals(paymentMethod)) {
             return new PayByBillUseCase(jdbcTemplate,
                     new OrganizerRepository(jdbcTemplate),
