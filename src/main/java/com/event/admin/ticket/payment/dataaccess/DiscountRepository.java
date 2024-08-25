@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 @AllArgsConstructor
 @Repository
-public class DiscountCodeRepository {
+public class DiscountRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public Discount fetchDiscountCode(DiscountCode discountCode) {

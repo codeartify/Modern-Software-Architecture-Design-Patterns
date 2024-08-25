@@ -2,7 +2,7 @@ package com.event.admin.ticket.payment.application;
 
 import com.event.admin.ticket.model.Discount;
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.dataaccess.DiscountCodeRepository;
+import com.event.admin.ticket.payment.dataaccess.DiscountRepository;
 import com.event.admin.ticket.payment.domain.DiscountCode;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,10 @@ public class TotalAmountFactory {
     public static final double VAT_RATE = 1.20;
     public static final double FEE_RATE = 1.03;
 
-    private final DiscountCodeRepository discountCodeRepository;
+    private final DiscountRepository discountRepository;
 
-    public TotalAmountFactory(DiscountCodeRepository discountCodeRepository) {
-        this.discountCodeRepository = discountCodeRepository;
+    public TotalAmountFactory(DiscountRepository discountRepository) {
+        this.discountRepository = discountRepository;
     }
 
     public double calculateTotalAmountFor(List<@Valid Ticket> tickets, DiscountCode discountCode) {
@@ -59,7 +59,7 @@ public class TotalAmountFactory {
     }
 
     private double calculateSumOfDiscountsPerTicket(List<@Valid Ticket> tickets, DiscountCode discountCode) {
-        var discount = discountCodeRepository.fetchDiscountCode(discountCode);
+        var discount = discountRepository.fetchDiscountCode(discountCode);
 
         return tickets.stream()
                 .filter(ticket -> discountApplies(ticket, discount))
