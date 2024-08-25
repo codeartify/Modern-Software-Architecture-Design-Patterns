@@ -6,9 +6,7 @@ import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gat
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.FindEvent;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.presenter.PresentBookTicketsSuccess;
 import com.event.admin.ticket.reservingTickets.application.usecase.ports.out.gateway.UpdateEvent;
-import com.event.admin.ticket.reservingTickets.domain.Booker;
-import com.event.admin.ticket.reservingTickets.domain.EventId;
-import com.event.admin.ticket.reservingTickets.domain.SelectedEvent;
+import com.event.admin.ticket.reservingTickets.domain.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,11 +25,13 @@ public class ReserveTicketsUseCase implements ReserveTickets {
     public void execute(Long eventId, String ticketType, int numberOfTickets, String bookerUsername, PresentBookTicketsSuccess presentSuccess, PresentBookTicketsFailure presentFailure) {
         try {
             var eventId1 = new EventId(eventId);
+            var bookerUsername1 = new BookerUsername(bookerUsername);
+            var numberOfTickets1 = new NumberOfTickets(numberOfTickets);
 
-            Booker booker = findBooker.findByUsernameOrThrow(bookerUsername);
+            Booker booker = findBooker.findByUsernameOrThrow(bookerUsername1);
             SelectedEvent event = findEvent.findByIdOrThrow(eventId1);
 
-            event.bookTickets(ticketType, numberOfTickets, booker);
+            event.bookTickets(ticketType, numberOfTickets, booker, new NumberOfTickets(numberOfTickets));
 
             this.updateEvent.withValue(event);
 

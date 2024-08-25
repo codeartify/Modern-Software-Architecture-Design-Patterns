@@ -40,7 +40,7 @@ public class EventRepository implements FindEvent, UpdateEvent {
             }
         } while (rs.next());
         var ticketsLeft = new TicketsLeft(tickets);
-        return new SelectedEvent(eventId, ticketsLeft, ticketsPerBooker);
+        return new SelectedEvent(new EventId(eventId), ticketsLeft, new NumberOfTickets(ticketsPerBooker));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class EventRepository implements FindEvent, UpdateEvent {
                             "    ) AS t WHERE rn = 1\n" +
                             ");",
                     ticket.getBookerId().value(),
-                    event.getId(),
+                            event.getId().value(),
                             ticket.getTicketType().name());
         });
         return event;
