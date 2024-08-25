@@ -1,4 +1,4 @@
-package com.event.admin.ticket.payment.dataaccess;
+package com.event.admin.ticket.paymentprocessing.dataaccess;
 
 import com.event.admin.ticket.model.Notification;
 import lombok.AllArgsConstructor;

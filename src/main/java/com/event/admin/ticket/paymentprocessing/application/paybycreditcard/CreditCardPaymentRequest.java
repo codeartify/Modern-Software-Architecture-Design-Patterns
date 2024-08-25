@@ -1,9 +1,9 @@
-package com.event.admin.ticket.payment.application;
+package com.event.admin.ticket.paymentprocessing.application.paybycreditcard;
 
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.domain.BuyerName;
-import com.event.admin.ticket.payment.domain.DiscountCode;
-import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
+import com.event.admin.ticket.paymentprocessing.domain.BuyerName;
+import com.event.admin.ticket.paymentprocessing.domain.DiscountCode;
+import com.event.admin.ticket.paymentprocessing.domain.OrganizerCompanyName;
 import jakarta.validation.Valid;
 
 import java.util.List;

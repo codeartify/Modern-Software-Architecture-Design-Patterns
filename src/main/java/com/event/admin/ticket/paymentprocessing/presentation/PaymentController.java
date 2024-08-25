@@ -1,12 +1,12 @@
-package com.event.admin.ticket.payment.presentation;
+package com.event.admin.ticket.paymentprocessing.presentation;
 
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.PaymentRequest;
-import com.event.admin.ticket.payment.application.BillPaymentRequest;
-import com.event.admin.ticket.payment.application.CreditCardPaymentRequest;
-import com.event.admin.ticket.payment.application.PayByBillUseCase;
-import com.event.admin.ticket.payment.application.PayByCreditCardUseCase;
-import com.event.admin.ticket.payment.domain.*;
+import com.event.admin.ticket.paymentprocessing.application.paybybill.BillPaymentRequest;
+import com.event.admin.ticket.paymentprocessing.application.paybycreditcard.CreditCardPaymentRequest;
+import com.event.admin.ticket.paymentprocessing.application.paybybill.PayByBillUseCase;
+import com.event.admin.ticket.paymentprocessing.application.paybycreditcard.PayByCreditCardUseCase;
+import com.event.admin.ticket.paymentprocessing.domain.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class PaymentController {
         log.info("Processing payment...");
         log.info("Payment request: {}", paymentRequest);
 
-        var paymentMethod = PaymentMethod.valueOf(paymentRequest.getPaymentMethod().toUpperCase());
+        var paymentMethod = PaymentMethod.toPaymentMethod(paymentRequest.getPaymentMethod());
 
         if (PaymentMethod.BILL.equals(paymentMethod)) {
             var billPaymentRequest = toBillPaymentRequest(paymentRequest);
@@ -56,8 +56,7 @@ public class PaymentController {
         var buyerName = new BuyerName(paymentRequest.getBuyerName());
         var discountCode = new DiscountCode(paymentRequest.getDiscountCode());
 
-        var creditCardPaymentRequest = new CreditCardPaymentRequest(tickets, buyerName, organizerCompanyName, discountCode);
-        return creditCardPaymentRequest;
+        return new CreditCardPaymentRequest(tickets, buyerName, organizerCompanyName, discountCode);
     }
 
     private static BillPaymentRequest toBillPaymentRequest(PaymentRequest paymentRequest) {

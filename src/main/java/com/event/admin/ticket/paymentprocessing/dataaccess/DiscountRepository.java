@@ -1,7 +1,7 @@
-package com.event.admin.ticket.payment.dataaccess;
+package com.event.admin.ticket.paymentprocessing.dataaccess;
 
 import com.event.admin.ticket.model.Discount;
-import com.event.admin.ticket.payment.domain.DiscountCode;
+import com.event.admin.ticket.paymentprocessing.domain.DiscountCode;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

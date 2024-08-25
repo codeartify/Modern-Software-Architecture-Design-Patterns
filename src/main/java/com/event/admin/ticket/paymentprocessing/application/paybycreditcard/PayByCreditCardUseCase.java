@@ -1,10 +1,12 @@
-package com.event.admin.ticket.payment.application;
+package com.event.admin.ticket.paymentprocessing.application.paybycreditcard;
 
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.dataaccess.PaymentRepository;
-import com.event.admin.ticket.payment.dataaccess.TicketRepository;
-import com.event.admin.ticket.payment.domain.*;
+import com.event.admin.ticket.paymentprocessing.application.shared.NotificationService;
+import com.event.admin.ticket.paymentprocessing.application.shared.TotalAmountFactory;
+import com.event.admin.ticket.paymentprocessing.dataaccess.PaymentRepository;
+import com.event.admin.ticket.paymentprocessing.dataaccess.TicketRepository;
+import com.event.admin.ticket.paymentprocessing.domain.*;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

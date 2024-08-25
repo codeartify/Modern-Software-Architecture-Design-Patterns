@@ -1,9 +1,9 @@
-package com.event.admin.ticket.payment.application;
+package com.event.admin.ticket.paymentprocessing.application.shared;
 
 import com.event.admin.ticket.model.Discount;
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.dataaccess.DiscountRepository;
-import com.event.admin.ticket.payment.domain.DiscountCode;
+import com.event.admin.ticket.paymentprocessing.dataaccess.DiscountRepository;
+import com.event.admin.ticket.paymentprocessing.domain.DiscountCode;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

@@ -1,13 +1,13 @@
-package com.event.admin.ticket.payment.application;
+package com.event.admin.ticket.paymentprocessing.application.shared;
 
 import com.event.admin.ticket.model.Bill;
 import com.event.admin.ticket.model.Notification;
 import com.event.admin.ticket.model.Organizer;
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.dataaccess.Notifications;
-import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
-import com.event.admin.ticket.payment.domain.BuyerName;
-import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
+import com.event.admin.ticket.paymentprocessing.dataaccess.Notifications;
+import com.event.admin.ticket.paymentprocessing.dataaccess.OrganizerRepository;
+import com.event.admin.ticket.paymentprocessing.domain.BuyerName;
+import com.event.admin.ticket.paymentprocessing.domain.OrganizerCompanyName;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

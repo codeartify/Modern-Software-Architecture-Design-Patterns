@@ -1,7 +1,7 @@
-package com.event.admin.ticket.payment.dataaccess;
+package com.event.admin.ticket.paymentprocessing.dataaccess;
 
 import com.event.admin.ticket.model.Ticket;
-import com.event.admin.ticket.payment.domain.QrCode;
+import com.event.admin.ticket.paymentprocessing.domain.QrCode;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

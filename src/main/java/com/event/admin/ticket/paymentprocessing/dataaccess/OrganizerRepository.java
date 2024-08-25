@@ -1,7 +1,7 @@
-package com.event.admin.ticket.payment.dataaccess;
+package com.event.admin.ticket.paymentprocessing.dataaccess;
 
 import com.event.admin.ticket.model.Organizer;
-import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
+import com.event.admin.ticket.paymentprocessing.domain.OrganizerCompanyName;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;

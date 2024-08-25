@@ -1,6 +1,7 @@
-package com.event.admin.ticket.payment.application;
+package com.event.admin.ticket.paymentprocessing.application.paybybill;
 
 import com.event.admin.ticket.model.Bill;
+import com.event.admin.ticket.paymentprocessing.application.shared.TotalAmountFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 public class BillFactory {
     private final TotalAmountFactory totalAmountFactory;
 
-    public Bill createBill(BillPaymentRequest billPaymentRequest) {
+    Bill createBill(BillPaymentRequest billPaymentRequest) {
         Bill bill = new Bill();
         bill.setBuyerCompanyName(billPaymentRequest.buyerCompanyName().value());
         bill.setBuyerName(billPaymentRequest.buyerName().value());

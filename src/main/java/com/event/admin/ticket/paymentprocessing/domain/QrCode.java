@@ -1,4 +1,4 @@
-package com.event.admin.ticket.payment.domain;
+package com.event.admin.ticket.paymentprocessing.domain;
 
 import java.util.UUID;
 
