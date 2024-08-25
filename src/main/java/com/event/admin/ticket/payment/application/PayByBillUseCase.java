@@ -1,9 +1,14 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.application;
 
-import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.model.Bill;
+import com.event.admin.ticket.model.Payment;
+import com.event.admin.ticket.model.PaymentRequest;
+import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
 import com.event.admin.ticket.payment.domain.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PayByBillUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
     private final OrganizerRepository organizerRepository;

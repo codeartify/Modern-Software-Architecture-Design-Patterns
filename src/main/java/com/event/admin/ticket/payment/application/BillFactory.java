@@ -1,4 +1,4 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.application;
 
 import com.event.admin.ticket.model.Bill;
 import com.event.admin.ticket.model.PaymentRequest;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class BillFactory {
     private final TotalAmountFactory totalAmountFactory;
 
-    Bill createBill(PaymentRequest paymentRequest, BuyerCompanyName buyerCompanyName, BuyerName buyerName, Iban iban, BillDescription billDescription, OrganizerCompanyName organizerCompanyName) {
+    public Bill createBill(PaymentRequest paymentRequest, BuyerCompanyName buyerCompanyName, BuyerName buyerName, Iban iban, BillDescription billDescription, OrganizerCompanyName organizerCompanyName) {
         Bill bill = new Bill();
         bill.setBuyerCompanyName(buyerCompanyName.value());
         bill.setBuyerName(buyerName.value());

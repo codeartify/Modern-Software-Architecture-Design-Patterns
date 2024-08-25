@@ -1,4 +1,4 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.dataaccess;
 
 import com.event.admin.ticket.model.Organizer;
 import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public class OrganizerRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    Organizer findByOrganizerCompanyName(OrganizerCompanyName organizerCompanyName) {
+     public Organizer findByOrganizerCompanyName(OrganizerCompanyName organizerCompanyName) {
         return this.jdbcTemplate.queryForObject(
                 "SELECT * FROM organizer WHERE company_name = ?", new Object[]{organizerCompanyName.value()}, new RowMapper<>() {
                     @Override

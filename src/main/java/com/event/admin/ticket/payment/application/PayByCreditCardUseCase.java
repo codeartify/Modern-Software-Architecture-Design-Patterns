@@ -1,10 +1,12 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.application;
 
 import com.event.admin.ticket.model.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class PayByCreditCardUseCase implements PaymentUseCase {
     private final JdbcTemplate jdbcTemplate;
     private final TotalAmountFactory totalAmountFactory;

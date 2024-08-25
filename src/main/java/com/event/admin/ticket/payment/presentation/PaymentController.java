@@ -1,7 +1,8 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.presentation;
 
 import com.event.admin.ticket.model.Payment;
 import com.event.admin.ticket.model.PaymentRequest;
+import com.event.admin.ticket.payment.application.PaymentUseCaseFactory;
 import com.event.admin.ticket.payment.domain.PaymentMethod;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

@@ -1,16 +1,13 @@
-package com.event.admin.ticket.payment;
+package com.event.admin.ticket.payment.application;
 
+import com.event.admin.ticket.payment.dataaccess.DiscountCodeRepository;
+import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
 import com.event.admin.ticket.payment.domain.PaymentMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentUseCaseFactory {
-    protected JdbcTemplate jdbcTemplate;
-
-    protected PaymentUseCaseFactory(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public static PaymentUseCase createPaymentUseCase(JdbcTemplate jdbcTemplate, PaymentMethod paymentMethod) {
         if (PaymentMethod.CREDIT_CARD.equals(paymentMethod)) {
