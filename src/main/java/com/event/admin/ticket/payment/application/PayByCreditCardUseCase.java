@@ -1,6 +1,8 @@
 package com.event.admin.ticket.payment.application;
 
 import com.event.admin.ticket.model.*;
+import com.event.admin.ticket.payment.dataaccess.OrganizerRepository;
+import com.event.admin.ticket.payment.domain.OrganizerCompanyName;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -43,14 +45,7 @@ public class PayByCreditCardUseCase implements PaymentUseCase {
             this.jdbcTemplate.update(query1, buyerNotification.getRecipient(), buyerNotification.getSubject(), buyerNotification.getMessage());
         }
 
-        String query = "SELECT * FROM organizer WHERE company_name = ?";
-        Organizer organizer = this.jdbcTemplate.queryForObject(query, new Object[]{organizerCompanyName}, (rs, _) -> {
-            Organizer organizer1 = new Organizer();
-            organizer1.setId(rs.getLong("id"));
-            organizer1.setCompanyName(rs.getString("company_name"));
-            organizer1.setContactName(rs.getString("contact_name"));
-            return organizer1;
-        });
+        Organizer organizer = new OrganizerRepository(jdbcTemplate).findByOrganizerCompanyName(new OrganizerCompanyName(organizerCompanyName));
 
         if (organizer != null) {
             Notification organizerNotification = new Notification();
