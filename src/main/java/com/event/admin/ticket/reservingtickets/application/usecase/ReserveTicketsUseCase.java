@@ -31,7 +31,7 @@ public class ReserveTicketsUseCase implements ReserveTickets {
 
             this.updateEvent.withValue(event);
 
-            presentSuccess.present(reserveTicketsInput.eventId(), reserveTicketsInput.numberOfTickets(), reserveTicketsInput.bookerUsername());
+            presentSuccess.present(new ReserveTicketsOutput(reserveTicketsInput.eventId(), reserveTicketsInput.numberOfTickets(), reserveTicketsInput.bookerUsername()));
         } catch (Exception e) {
             presentFailure.present(e);
         }
