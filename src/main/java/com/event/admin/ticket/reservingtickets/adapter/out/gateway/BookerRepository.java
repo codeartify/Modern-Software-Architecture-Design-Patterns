@@ -19,7 +19,8 @@ public class BookerRepository implements FindBooker {
 
     @Override
     public Optional<Booker> findByUsername(BookerUsername bookerUsername) {
-        var booker = jdbcTemplate.query("SELECT * FROM booker WHERE username = ?", new Object[]{bookerUsername.value()}, (rs, _) -> new Booker(new BookerId(rs.getLong("id"))));
+        var booker = jdbcTemplate.query("SELECT * FROM booker WHERE username = ?", new Object[]{bookerUsername.value()}, (rs, _) -> new Booker(new BookerId(rs.getLong("id")), new BookerUsername(rs.getString("username"))));
+        
         return booker.stream().findFirst();
     }
 }
