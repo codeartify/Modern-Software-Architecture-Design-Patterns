@@ -1,4 +1,4 @@
-package com.library.application;
+package com.library.application_service;
 
 import com.library.domain.Book;
 import com.library.infrastructure.BookRepository;

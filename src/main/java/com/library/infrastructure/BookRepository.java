@@ -1,6 +1,6 @@
 package com.library.infrastructure;
 
-import com.library.application.IBookRepository;
+import com.library.application_service.IBookRepository;
 import com.library.domain.Book;
 import org.springframework.stereotype.Repository;
 

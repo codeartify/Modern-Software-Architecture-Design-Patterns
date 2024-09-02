@@ -1,7 +1,7 @@
 package com.library.infrastructure;
 
 import com.library.domain.Member;
-import com.library.application.IMemberRepository;
+import com.library.application_service.IMemberRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;

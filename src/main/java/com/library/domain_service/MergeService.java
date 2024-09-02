@@ -1,6 +1,6 @@
 package com.library.domain_service;
 
-import com.library.application.IMemberRepository;
+import com.library.application_service.IMemberRepository;
 import com.library.domain.Member;
 import org.springframework.stereotype.Service;
 

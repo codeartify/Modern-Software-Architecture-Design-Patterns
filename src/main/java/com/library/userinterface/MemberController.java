@@ -1,6 +1,6 @@
 package com.library.userinterface;
 
-import com.library.application.MemberService;
+import com.library.application_service.MemberService;
 import com.library.domain.Member;
 import org.springframework.web.bind.annotation.*;
 

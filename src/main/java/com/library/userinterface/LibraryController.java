@@ -1,6 +1,6 @@
 package com.library.userinterface;
 
-import com.library.application.LibraryService;
+import com.library.application_service.LibraryService;
 import com.library.domain.Book;
 import org.springframework.web.bind.annotation.*;
 
