@@ -1,9 +1,8 @@
 package com.event.admin.ticket;
 
-import com.event.admin.ticket.model.Event;
-import com.event.admin.ticket.model.PaymentRequest;
-import com.event.admin.ticket.model.ReserveTicketsRequest;
-import com.event.admin.ticket.model.Ticket;
+import com.event.admin.ticket.domain.Event;
+import com.event.admin.ticket.domain.PaymentRequest;
+import com.event.admin.ticket.domain.Ticket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
