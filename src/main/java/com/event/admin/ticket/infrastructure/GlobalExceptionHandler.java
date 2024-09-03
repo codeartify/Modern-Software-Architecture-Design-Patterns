@@ -1,4 +1,4 @@
-package com.event.admin.ticket;
+package com.event.admin.ticket.infrastructure;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
