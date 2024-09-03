@@ -5,8 +5,8 @@ import com.clinic.adapter.out.persistence.entity.Gender;
 import com.clinic.domain.Doctor;
 import com.clinic.domain.DoctorPreference;
 import com.clinic.domain.Language;
-import com.clinic.port.out.ForFindingDoctorByPreferences;
-import com.clinic.port.out.ForFindingFirstAvailableDoctor;
+import com.clinic.application.port.out.ForFindingDoctorByPreferences;
+import com.clinic.application.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

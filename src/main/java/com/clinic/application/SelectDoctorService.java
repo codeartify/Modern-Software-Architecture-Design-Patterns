@@ -3,9 +3,9 @@ package com.clinic.application;
 import com.clinic.domain.Doctor;
 import com.clinic.domain.Patient;
 import com.clinic.domain.Urgency;
-import com.clinic.port.in.ForSelectingDoctor;
-import com.clinic.port.out.ForFindingDoctorByPreferences;
-import com.clinic.port.out.ForFindingFirstAvailableDoctor;
+import com.clinic.application.port.in.ForSelectingDoctor;
+import com.clinic.application.port.out.ForFindingDoctorByPreferences;
+import com.clinic.application.port.out.ForFindingFirstAvailableDoctor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,8 +13,9 @@ public class SelectDoctorService implements ForSelectingDoctor {
     private final ForFindingDoctorByPreferences forFindingDoctorByPreferences;
     private final ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor;
 
-    public SelectDoctorService(ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor,
-                               ForFindingDoctorByPreferences forFindingDoctorByPreferences) {
+    public SelectDoctorService(
+            ForFindingFirstAvailableDoctor forFindingFirstAvailableDoctor,
+            ForFindingDoctorByPreferences forFindingDoctorByPreferences) {
         this.forFindingFirstAvailableDoctor = forFindingFirstAvailableDoctor;
         this.forFindingDoctorByPreferences = forFindingDoctorByPreferences;
     }

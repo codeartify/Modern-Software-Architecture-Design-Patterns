@@ -1,8 +1,8 @@
 package com.clinic.application;
 
 import com.clinic.domain.Patient;
-import com.clinic.port.in.ForRegisteringPatient;
-import com.clinic.port.out.ForStoringPatients;
+import com.clinic.application.port.in.ForRegisteringPatient;
+import com.clinic.application.port.out.ForStoringPatients;
 import org.springframework.stereotype.Service;
 
 @Service
