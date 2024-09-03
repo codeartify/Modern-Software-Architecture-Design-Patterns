@@ -1,0 +1,42 @@
+package com.event.admin.processpayment.paybybill;
+
+import com.event.admin.domain.Bill;
+import com.event.admin.domain.Payment;
+import com.event.admin.processpayment.domain.PaymentMethod;
+import com.event.admin.processpayment.shared.NotificationService;
+import com.event.admin.processpayment.dataaccess.PaymentRepository;
+import com.event.admin.ticket.processpayment.domain.*;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PayByBillHandler {
+    private final BillFactory billFactory;
+    private final NotificationService notificationService;
+    private final PaymentRepository paymentRepository;
+
+    public PayByBillHandler(BillFactory billFactory, NotificationService notificationService, PaymentRepository paymentRepository) {
+        this.billFactory = billFactory;
+        this.notificationService = notificationService;
+        this.paymentRepository = paymentRepository;
+    }
+
+
+    public Payment handle(BillPaymentRequest billPaymentRequest) {
+        var bill = billFactory.createBill(billPaymentRequest);
+        notificationService.notifyBuyer(bill);
+        notificationService.notifyOrganizer(billPaymentRequest.organizerCompanyName());
+        var payment = createPaymentFor(bill);
+        paymentRepository.updatePayment(payment);
+        return payment;
+    }
+
+    private static Payment createPaymentFor(Bill bill) {
+        Payment payment = new Payment();
+        payment.setAmount(bill.getAmount());
+        payment.setPaymentMethod(PaymentMethod.BILL.name());
+        payment.setDescription("Bill payment for tickets");
+        payment.setSuccessful(true);
+        return payment;
+    }
+
+}

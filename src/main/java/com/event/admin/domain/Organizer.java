@@ -1,0 +1,15 @@
+package com.event.admin.domain;
+
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+public class Organizer {
+    private Long id;
+    private String companyName;
+    private String contactName;
+}
