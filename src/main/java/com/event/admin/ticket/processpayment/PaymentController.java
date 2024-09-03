@@ -4,8 +4,8 @@ import com.event.admin.ticket.domain.Payment;
 import com.event.admin.ticket.domain.PaymentRequest;
 import com.event.admin.ticket.processpayment.application.paybybill.BillPaymentRequest;
 import com.event.admin.ticket.processpayment.application.paybycreditcard.CreditCardPaymentRequest;
-import com.event.admin.ticket.processpayment.application.paybybill.PayByBillUseCase;
-import com.event.admin.ticket.processpayment.application.paybycreditcard.PayByCreditCardUseCase;
+import com.event.admin.ticket.processpayment.application.paybybill.PayByBillHandler;
+import com.event.admin.ticket.processpayment.application.paybycreditcard.PayByCreditCardHandler;
 import com.event.admin.ticket.processpayment.domain.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/api")
 public class PaymentController {
-    private final PayByBillUseCase payByBillUseCase;
-    private final PayByCreditCardUseCase payByCreditCardUseCase;
+    private final PayByBillHandler payByBillHandler;
+    private final PayByCreditCardHandler payByCreditCardHandler;
 
     @PostMapping("/tickets/payment")
     @Transactional
@@ -35,13 +35,13 @@ public class PaymentController {
 
         if (PaymentMethod.BILL.equals(paymentMethod)) {
             var billPaymentRequest = toBillPaymentRequest(paymentRequest);
-            var payment = payByBillUseCase.createPayment(billPaymentRequest);
+            var payment = payByBillHandler.handle(billPaymentRequest);
             return ResponseEntity.ok(payment);
         }
 
         if (PaymentMethod.CREDIT_CARD.equals(paymentMethod)) {
             var creditCardPaymentRequest = toCreditCardPaymentRequest(paymentRequest);
-            var payment = payByCreditCardUseCase.createPayment(creditCardPaymentRequest);
+            var payment = payByCreditCardHandler.handle(creditCardPaymentRequest);
             return ResponseEntity.ok(payment);
         }
 

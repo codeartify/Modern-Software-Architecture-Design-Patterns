@@ -13,20 +13,20 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PayByCreditCardUseCase {
+public class PayByCreditCardHandler {
     private final TotalAmountFactory totalAmountFactory;
     private final NotificationService notificationService;
     private final TicketRepository ticketRepository;
     private final PaymentRepository paymentRepository;
 
-    public PayByCreditCardUseCase(TotalAmountFactory totalAmountFactory, NotificationService notificationService, TicketRepository ticketRepository, PaymentRepository paymentRepository) {
+    public PayByCreditCardHandler(TotalAmountFactory totalAmountFactory, NotificationService notificationService, TicketRepository ticketRepository, PaymentRepository paymentRepository) {
         this.totalAmountFactory = totalAmountFactory;
         this.notificationService = notificationService;
         this.ticketRepository = ticketRepository;
         this.paymentRepository = paymentRepository;
     }
 
-    public Payment createPayment(CreditCardPaymentRequest creditCardPaymentRequest) {
+    public Payment handle(CreditCardPaymentRequest creditCardPaymentRequest) {
         var updatedTickets = addQRCodeTo(creditCardPaymentRequest.tickets());
         updatedTickets.forEach(updatedTicket -> notificationService.notifyPerTicket(updatedTicket, creditCardPaymentRequest.buyerName()));
         notificationService.notifyOrganizer(creditCardPaymentRequest.organizerCompanyName());

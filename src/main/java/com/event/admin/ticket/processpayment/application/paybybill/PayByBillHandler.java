@@ -8,19 +8,19 @@ import com.event.admin.ticket.processpayment.domain.*;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PayByBillUseCase {
+public class PayByBillHandler {
     private final BillFactory billFactory;
     private final NotificationService notificationService;
     private final PaymentRepository paymentRepository;
 
-    public PayByBillUseCase(BillFactory billFactory, NotificationService notificationService, PaymentRepository paymentRepository) {
+    public PayByBillHandler(BillFactory billFactory, NotificationService notificationService, PaymentRepository paymentRepository) {
         this.billFactory = billFactory;
         this.notificationService = notificationService;
         this.paymentRepository = paymentRepository;
     }
 
 
-    public Payment createPayment(BillPaymentRequest billPaymentRequest) {
+    public Payment handle(BillPaymentRequest billPaymentRequest) {
         var bill = billFactory.createBill(billPaymentRequest);
         notificationService.notifyBuyer(bill);
         notificationService.notifyOrganizer(billPaymentRequest.organizerCompanyName());
