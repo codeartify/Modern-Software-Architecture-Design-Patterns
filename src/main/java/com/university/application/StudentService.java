@@ -1,4 +1,4 @@
-package com.university.service;
+package com.university.application;
 
 import com.university.domain.Course;
 import com.university.domain.Enrollment;
